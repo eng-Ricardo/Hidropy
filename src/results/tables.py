@@ -140,7 +140,7 @@ def optimization_df(project, opt) -> pd.DataFrame:
             'Velocidade máx. original (m/s)': d.get('v_max_orig'),
             'Velocidade máx. otimizada (m/s)': d.get('v_max'),
             'Perda unitária otimizada (m/km)': d.get('j_max'),
-            'Restrição de velocidade': '' if d.get('fixed') or d.get('v_max') is None else (
+            'Restrição de velocidade': '' if d.get('v_max') is None else (
                 'atende' if d['v_max'] <= vmax else 'NÃO atende'),
         })
     return pd.DataFrame(rows)
@@ -172,7 +172,7 @@ def optimization_nodes_df(project, opt) -> pd.DataFrame:
                      'Pressão mín. otimizada (m)': d.get('p_min'),
                      'Pressão máx. otimizada (m)': d.get('p_max'),
                      'Alvo do script (m)': d.get('alvo'),
-                     'Teto físico (m)': d.get('teto'),
+                     'Pressão na rede de referência (m)': d.get('teto'),
                      'Restrição de pressão': 'atende' if d.get('ok_pressure') else 'NÃO atende'})
     return pd.DataFrame(rows)
 

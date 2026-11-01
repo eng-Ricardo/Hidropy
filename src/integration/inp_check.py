@@ -18,6 +18,7 @@ import re
 import tempfile
 import unicodedata
 from dataclasses import dataclass, field
+from .inp_compat import is_extension, split_extensions
 
 KNOWN_SECTIONS = {
     'TITLE', 'JUNCTIONS', 'RESERVOIRS', 'TANKS', 'PIPES', 'PUMPS', 'VALVES', 'EMITTERS',
@@ -75,6 +76,7 @@ class InpCheck:
     fixed_text: str           # conteúdo com as correções propostas
     issues: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
+    compatible_text: str = ''  # extensões QEPANET transportadas como comentários
 
     @property
     def encoding_label(self) -> str:
@@ -197,7 +199,7 @@ def check_text(text: str, path: str = '', encoding: str = 'utf-8') -> InpCheck:
             name = s[1:s.find(']')].strip().upper() if ']' in s else s[1:].upper()
             section = name
             sections_found.add(name)
-            if name not in KNOWN_SECTIONS:
+            if name not in KNOWN_SECTIONS and not is_extension(name):
                 unknown.append(f'[{name}] (linha {n})')
             fixed_lines.append(line)
             continue
@@ -214,12 +216,17 @@ def check_text(text: str, path: str = '', encoding: str = 'utf-8') -> InpCheck:
     if not sections_found & NETWORK_SECTIONS:
         raise InpError('O arquivo não contém as seções de uma rede EPANET ([JUNCTIONS], '
                        '[PIPES]...). Ele está corrompido ou não é um arquivo .inp.')
+    compatible, extensions = split_extensions(text)
+    fixed, _ = split_extensions('\n'.join(fixed_lines) + '\n')
     chk = InpCheck(path=path, encoding=encoding, text=text,
-                   fixed_text='\n'.join(fixed_lines) + '\n', issues=issues)
+                   fixed_text=fixed, compatible_text=compatible, issues=issues)
+    if extensions:
+        chk.warnings.append(f'{len(extensions)} seções auxiliares QEPANET reconhecidas; '
+                            'preservadas como comentários para leitura compatível com EPANET.')
     if 'END' not in sections_found:
         chk.warnings.append('O arquivo não termina com [END]: pode estar incompleto.')
     if unknown:
-        chk.warnings.append('Seções desconhecidas (serão ignoradas pelo EPANET): ' +
+        chk.warnings.append('Seções desconhecidas (podem impedir a leitura): ' +
                             ', '.join(unknown[:5]))
     return chk
 
@@ -244,5 +251,5 @@ def prepare(check: InpCheck, apply_fixes: bool) -> str:
     name = os.path.splitext(os.path.basename(check.path or 'rede.inp'))[0] + '.inp'
     dest = os.path.join(d, name)
     with open(dest, 'w', encoding='utf-8', newline='\n') as f:
-        f.write(check.fixed_text if apply_fixes else check.text)
+        f.write(check.fixed_text if apply_fixes else (check.compatible_text or check.text))
     return dest

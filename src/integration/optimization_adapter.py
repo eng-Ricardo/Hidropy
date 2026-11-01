@@ -27,6 +27,7 @@ def constants_for(project: Project, export) -> dict:
 
 
 def prepare(project: Project) -> runner.RunJob:
+    project.opt_settings.validate()
     script = script_path(project)
     if not os.path.exists(script):
         raise FileNotFoundError(f'Script de otimização não encontrado: {script}')

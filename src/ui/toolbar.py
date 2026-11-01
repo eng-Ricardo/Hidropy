@@ -133,6 +133,18 @@ def icons(fg: QColor | None = None):
         _pen(p, QColor('#ff8c00'), 1)
         p.drawEllipse(QPointF(16, 16), 5, 5)
 
+    def renumber(p):
+        _pen(p, BLUE, 1.8)
+        f = p.font()
+        f.setPixelSize(11)
+        f.setBold(True)
+        p.setFont(f)
+        for i in range(3):
+            p.drawText(QRectF(1, i * 9, 15, 13), Qt.AlignCenter, str(i + 1))
+        p.drawLine(QPointF(24, 5), QPointF(24, 26))
+        p.drawLine(QPointF(19, 21), QPointF(24, 26))
+        p.drawLine(QPointF(29, 21), QPointF(24, 26))
+
     def run(p):
         p.setPen(Qt.NoPen)
         p.setBrush(QBrush(QColor('#1a8a1a')))
@@ -151,6 +163,16 @@ def icons(fg: QColor | None = None):
             p.setPen(Qt.NoPen)
             p.setBrush(QBrush(QColor(c)))
             p.drawRect(QRectF(4 + i * 6.5, 28 - h, 5, h))
+
+    def graphs(p):
+        _pen(p, DARK, 1.6)
+        p.drawLine(QPointF(5, 4), QPointF(5, 27))
+        p.drawLine(QPointF(5, 27), QPointF(29, 27))
+        _pen(p, BLUE, 2.5)
+        p.drawPolyline(QPolygonF([QPointF(7, 21), QPointF(13, 13), QPointF(19, 18), QPointF(27, 6)]))
+        p.setBrush(QBrush(BLUE))
+        for x, y in ((7, 21), (13, 13), (19, 18), (27, 6)):
+            p.drawEllipse(QPointF(x, y), 1.8, 1.8)
 
     def dxf_in(p):
         _pen(p, DARK, 1.6)
@@ -208,8 +230,8 @@ def build_toolbars(win):
                'tool_arc': 'arc', 'tool_text': 'text', 'tool_dimension': 'dimension',
                'tool_measure': 'measure', 'tool_junction': 'junction',
                'tool_reservoir': 'reservoir', 'tool_tank': 'tank', 'tool_pipe': 'pipe',
-               'tool_pump': 'pump', 'tool_valve': 'valve', 'tool_split': 'split',
-               'simulate': 'run', 'optimize': 'optimize', 'results': 'results',
+               'tool_pump': 'pump', 'tool_valve': 'valve', 'tool_split': 'split', 'renumber': 'renumber',
+               'simulate': 'run', 'optimize': 'optimize', 'results': 'results', 'graphs': 'graphs',
                'import_dxf': 'dxf_in', 'export_res': 'sheet', 'export_dxf': 'dxf_out', 'validate': 'validate'}
     for k, name in mapping.items():
         a[k].setIcon(ic[name])
@@ -228,8 +250,8 @@ def build_toolbars(win):
     bar('Arquivo', ['new', 'open', 'save', None, 'import_dxf', 'export_dxf', None, 'undo',
                     'redo', 'delete', 'fit'], 'tb_file')
     bar('Rede', ['tool_select', 'tool_pan', None, 'tool_pipe', 'tool_junction',
-                 'tool_reservoir', 'tool_tank', 'tool_pump', 'tool_valve', 'tool_split'],
+                 'tool_reservoir', 'tool_tank', 'tool_pump', 'tool_valve', 'tool_split', 'renumber'],
         'tb_net')
     bar('Desenho', ['tool_line', 'tool_polyline', 'tool_rect', 'tool_circle', 'tool_arc',
                     'tool_text', 'tool_dimension', 'tool_measure'], 'tb_cad')
-    bar('Cálculo', ['validate', 'simulate', 'optimize', 'results', 'export_res'], 'tb_calc')
+    bar('Cálculo', ['validate', 'simulate', 'optimize', 'results', 'graphs', 'export_res'], 'tb_calc')

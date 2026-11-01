@@ -9,7 +9,7 @@ from __future__ import annotations
 import math
 
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal, QTimer
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
+from PySide6.QtGui import QBrush, QColor, QContextMenuEvent, QFont, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 
 from ..results import thematic_views as TV
@@ -484,7 +484,13 @@ class CadCanvas(QGraphicsView):
     def contextMenuEvent(self, ev):
         # menu de contexto só na ferramenta de seleção (nas outras o botão direito termina)
         if self.tool is not None and self.tool.name == 'Selecionar':
+            if ev.reason() == QContextMenuEvent.Mouse:
+                pos = self.viewport().mapFromGlobal(ev.globalPos())
+                uid = self.pick(*self.view2model(pos))
+                if uid and uid not in self.ctrl.selection:
+                    self.ctrl.set_selection([uid], 'canvas')
             self.contextMenuRequested.emit(ev.globalPos())
+            ev.accept()
 
     def mouseDoubleClickEvent(self, ev):
         if ev.button() == Qt.MiddleButton:

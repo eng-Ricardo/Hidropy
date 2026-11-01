@@ -1,65 +1,44 @@
-"""Tela de abertura (splash screen) do HidroPy."""
-
+"""Tela de abertura do AVANT HIDRO."""
 from __future__ import annotations
-
-import os
-
 from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QPainter, QPixmap
 from PySide6.QtWidgets import QSplashScreen
-
-CYAN = QColor('#0ABDDB')          # mesmo ciano do ícone
-WIDTH, HEIGHT = 680, 380
+from .. import __version__
+from ..branding import APP_NAME, LOGO_PATH, ORIGINAL_AUTHOR
+BACKGROUND = QColor('#000000')
+WIDTH, HEIGHT = 820, 420
 DURATION_MS = 2000
-LOGO = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources',
-                    'hidropy_logo.png')
-
-
+LOGO = str(LOGO_PATH)
 def splash_pixmap(scale: float = 1.0) -> QPixmap:
-    w, h = int(WIDTH * scale), int(HEIGHT * scale)
+    w, h = round(WIDTH * scale), round(HEIGHT * scale)
     pm = QPixmap(w, h)
-    pm.fill(CYAN)
+    pm.fill(BACKGROUND)
     p = QPainter(pm)
     p.setRenderHint(QPainter.Antialiasing)
     p.setRenderHint(QPainter.SmoothPixmapTransform)
     s = scale
-    # símbolo da rede (o ícone tem o mesmo fundo ciano, então se funde à tela)
-    if os.path.exists(LOGO):
-        logo = QPixmap(LOGO).scaled(int(165 * s), int(165 * s), Qt.KeepAspectRatio,
-                                    Qt.SmoothTransformation)
-        p.drawPixmap(int(48 * s), int((h - logo.height()) / 2 - 12 * s), logo)
-    white = QColor('#FFFFFF')
-    p.setPen(white)
-    f = QFont('Segoe UI', 1)
-    f.setPixelSize(int(76 * s))
-    f.setBold(True)
-    p.setFont(f)
-    text_x = 240 * s
-    p.drawText(QRectF(text_x, 100 * s, w - text_x - 30 * s, 100 * s),
-               Qt.AlignLeft | Qt.AlignVCenter, 'HidroPy')
-    f = QFont('Segoe UI', 1)
-    f.setPixelSize(int(21 * s))
-    p.setFont(f)
-    p.drawText(QRectF(text_x + 4 * s, 196 * s, w - text_x - 30 * s, 40 * s),
-               Qt.AlignLeft | Qt.AlignVCenter, 'simulador hidráulico baseado em python')
-    # crédito discreto no canto inferior direito
-    f = QFont('Segoe UI', 1)
-    f.setPixelSize(int(12 * s))
-    p.setFont(f)
-    c = QColor(white)
-    c.setAlpha(175)
-    p.setPen(c)
-    p.drawText(QRectF(0, h - 34 * s, w - 18 * s, 22 * s), Qt.AlignRight | Qt.AlignVCenter,
-               'Criado por Caio Henrique')
+    logo = QPixmap(LOGO)
+    if not logo.isNull():
+        logo = logo.scaled(round((WIDTH - 48) * s), round(306 * s), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        p.drawPixmap(round((w - logo.width()) / 2), round(22 * s), logo)
+    else:
+        p.setPen(QColor('#ffffff'))
+        font = QFont('Segoe UI'); font.setPixelSize(round(48 * s)); font.setBold(True)
+        p.setFont(font)
+        p.drawText(QRectF(24 * s, 40 * s, w - 48 * s, 190 * s), Qt.AlignCenter, APP_NAME)
+    p.setPen(QColor('#e1e6ed'))
+    font = QFont('Segoe UI'); font.setPixelSize(round(17 * s)); p.setFont(font)
+    p.drawText(QRectF(20 * s, 320 * s, w - 40 * s, 30 * s), Qt.AlignCenter, f'Versão {__version__} • Licença MIT')
+    font.setPixelSize(round(12 * s)); p.setFont(font)
+    p.setPen(QColor('#a7b0bf'))
+    p.drawText(QRectF(20 * s, 365 * s, w - 40 * s, 30 * s), Qt.AlignCenter, f'Baseado no HidroPy • Autor original: {ORIGINAL_AUTHOR}')
     p.end()
     return pm
-
 
 def show_splash(app) -> QSplashScreen:
     ratio = app.primaryScreen().devicePixelRatio() if app.primaryScreen() else 1.0
     pm = splash_pixmap(ratio)
     pm.setDevicePixelRatio(ratio)
     splash = QSplashScreen(pm, Qt.WindowStaysOnTopHint)
-    splash.show()
-    app.processEvents()
+    splash.show(); app.processEvents()
     return splash

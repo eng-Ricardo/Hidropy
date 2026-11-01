@@ -11,7 +11,7 @@ def test_help_menu_has_manual_and_about_only(qapp):
     w = MainWindow()
     menu = next(m for m in w.menuBar().actions() if m.text().replace('&', '') == 'Ajuda')
     labels = [a.text() for a in menu.menu().actions() if a.text()]
-    assert labels == ['Manual do HidroPy', 'Sobre o HidroPy']
+    assert labels == ['Manual do AVANT HIDRO', 'Sobre o AVANT HIDRO']
     assert not hasattr(w, 'feature_status')
     w.ctrl.mark_saved()
     w.close()
@@ -24,7 +24,8 @@ def test_manual_content(qapp):
     # o manual descreve o que existe; nada de "pendente"/"não implementado"
     low = html.lower()
     for word in ('pendente', 'não implementad', 'não suportad', 'main4', 'wntr', 'deap'):
-        assert word not in low, word
+        # "dependente de pressão" não é uma declaração de funcionalidade pendente.
+        assert re.search(r'\b' + re.escape(word), low) is None, word
     # todo link do sumário aponta para uma seção existente
     targets = set(re.findall(r'href="#([\w-]+)"', html))
     anchors = set(re.findall(r'<a name="([\w-]+)"', html))

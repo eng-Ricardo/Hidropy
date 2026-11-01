@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import copy
 
 from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtGui import QAction, QActionGroup, QDesktopServices, QKeySequence
@@ -11,6 +12,8 @@ from PySide6.QtWidgets import (QDockWidget, QFileDialog, QInputDialog, QLabel, Q
                                QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QToolBar,
                                QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox)
 
+from .. import __version__
+from ..branding import APP_NAME as PRODUCT_NAME
 from ..cad import drawing_tools as T
 from ..cad.canvas import CadCanvas
 from ..hydraulics import editing
@@ -32,7 +35,7 @@ from .validation_panel import ValidationPanel
 from . import toolbar as TB
 
 log = logging.getLogger(__name__)
-APP_NAME = 'HidroPy'
+APP_NAME = f'{PRODUCT_NAME} {__version__}'
 
 
 class MainWindow(QMainWindow):
@@ -42,6 +45,7 @@ class MainWindow(QMainWindow):
         self.canvas = CadCanvas(self.ctrl)
         self.setCentralWidget(self.canvas)
         self.runner = RunController(self.ctrl, self)
+        self.graphs_dialog = None
         self.resize(1500, 920)
         self._build_docks()
         self._build_status()
@@ -213,6 +217,8 @@ class MainWindow(QMainWindow):
         tool('pump', 'Inserir bomba', 'B')
         tool('valve', 'Inserir válvula', 'V')
         tool('split', 'Dividir tubulação')
+        a['renumber'] = A('Renumerar nós e trechos…', self.renumber_network,
+                           tip='Prefixos, ordem geométrica ou hidráulica, prévia e desfazer')
 
         a['mark_existing'] = A('Marcar trechos selecionados como existentes',
                                lambda: self.mark_existing(True), 'Ctrl+Shift+E',
@@ -240,6 +246,8 @@ class MainWindow(QMainWindow):
         a['cancel'] = A('Cancelar cálculo em execução', self.runner.cancel)
         a['results'] = A('Painel de resultados', lambda: (self.d_results.show(),
                                                          self.d_results.raise_()))
+        a['graphs'] = A('Gráficos…', self.show_graphs, 'Ctrl+G',
+                         tip='Série temporal, perfil, contorno, frequência e vazão do sistema')
         a['th_press'] = A('Mapa: pressão nos nós', lambda: self.results.set_vars('pressure', None))
         a['th_vel'] = A('Mapa: velocidade', lambda: self.results.set_vars(None, 'velocity'))
         a['th_flow'] = A('Mapa: vazão (com setas)', self.theme_flow)
@@ -258,8 +266,8 @@ class MainWindow(QMainWindow):
         a['runs_dir'] = A('Abrir pasta de execuções', self.open_runs_dir)
         a['logfile'] = A('Abrir arquivo de log', self.open_logfile)
         a['settings'] = A('Configurações…', self.settings_dialog)
-        a['readme'] = A('Manual do HidroPy', self.open_readme, 'F1')
-        a['about'] = A('Sobre o HidroPy', self.about)
+        a['readme'] = A(f'Manual do {PRODUCT_NAME}', self.open_readme, 'F1')
+        a['about'] = A(f'Sobre o {PRODUCT_NAME}', self.about)
 
     def _build_menus(self):
         a = self.a
@@ -291,14 +299,14 @@ class MainWindow(QMainWindow):
                            'tool_rect', 'tool_circle', 'tool_arc', 'tool_text', 'tool_dimension',
                            None, 'tool_measure', None, 'snap_grid', 'snap_obj'])
         menu('&Rede hidráulica', ['tool_junction', 'tool_reservoir', 'tool_tank', 'tool_pipe',
-                                  'tool_pump', 'tool_valve', 'tool_split', None, 'mark_existing',
+                                  'tool_pump', 'tool_valve', 'tool_split', 'renumber', None, 'mark_existing',
                                   'mark_projected', None, 'convert', None,
                                   'curves', 'patterns', 'controls', None, 'scenarios', None,
                                   'validate', 'table'])
         menu('De&mandas', ['population', 'nodal_demand'])
         menu('&Simulação', ['sim_opts', 'simulate', 'cancel'])
         menu('&Otimização', ['opt_cfg', 'optimize', 'opt_last', 'cancel'])
-        menu('Res&ultados', ['results', None, 'th_press', 'th_vel', 'th_flow', 'th_diam',
+        menu('Res&ultados', ['results', 'graphs', None, 'th_press', 'th_vel', 'th_flow', 'th_diam',
                              'th_diam_opt', 'th_change', 'th_existing', 'th_clear', None, 'export_res', 'report'])
         menu('&Ferramentas', ['tool_measure', 'table', 'validate', None, 'runs_dir', 'logfile'])
         menu('&Configurações', ['settings', 'sim_opts', 'opt_cfg'])
@@ -307,8 +315,20 @@ class MainWindow(QMainWindow):
     def _build_toolbars(self):
         TB.build_toolbars(self)
 
+    def show_graphs(self):
+        from .dialogs.graph_dialog import GraphDialog
+        if self.graphs_dialog is None:
+            self.graphs_dialog = GraphDialog(self.ctrl, self, self.results.slider.value())
+        else:
+            self.graphs_dialog.refresh()
+            self.graphs_dialog.set_time_index(self.results.slider.value())
+        self.graphs_dialog.show()
+        self.graphs_dialog.raise_()
+        self.graphs_dialog.activateWindow()
+
     def _connect(self):
         c = self.ctrl
+        self.results.graphsRequested.connect(self.show_graphs)
         c.dirtyChanged.connect(lambda d: self.update_title())
         c.elementsChanged.connect(lambda cs: self._on_model_changed())
         c.projectReplaced.connect(self._on_project_replaced)
@@ -461,7 +481,7 @@ class MainWindow(QMainWindow):
             return
         if not path:
             path, _ = QFileDialog.getOpenFileName(self, 'Abrir projeto', '',
-                                                  f'Projeto SHCAD (*{EXTENSION});;Todos (*.*)')
+                                                  f'Projeto AVANT HIDRO (*{EXTENSION});;Todos (*.*)')
         if not path:
             return
         try:
@@ -480,7 +500,7 @@ class MainWindow(QMainWindow):
 
     def file_save_as(self) -> bool:
         path, _ = QFileDialog.getSaveFileName(self, 'Salvar projeto', self.ctrl.project.path or
-                                              '', f'Projeto SHCAD (*{EXTENSION})')
+                                              '', f'Projeto AVANT HIDRO (*{EXTENSION})')
         if not path:
             return False
         if not path.lower().endswith(EXTENSION):
@@ -622,7 +642,10 @@ class MainWindow(QMainWindow):
                 != QMessageBox.Yes:
             return
         try:
-            net, warns = import_inp(prepared, p)
+            draft = copy.copy(p)
+            draft.sim_options = copy.deepcopy(p.sim_options)
+            draft.meta = copy.deepcopy(p.meta)
+            net, warns = import_inp(prepared, draft, source_path=path)
         except Exception as e:
             QMessageBox.critical(self, 'Importar .inp',
                                  f'Não foi possível ler a rede do arquivo:\n{e}')
@@ -632,8 +655,9 @@ class MainWindow(QMainWindow):
         if not p.network.nodes and p.bounds() is None:
             b = net.bounds()
             if b:
-                p.display_origin = (round(b[0], -2), round(b[1], -2))
-        self.ctrl.apply(changes, f'Importar {os.path.basename(path)}')
+                draft.display_origin = (round(b[0], -2), round(b[1], -2))
+        self.ctrl.apply_import(changes, draft.sim_options, draft.meta, draft.display_origin,
+                               f'Importar {os.path.basename(path)}')
         self.canvas.rebuild()
         for w in warns:
             self.logw.appendPlainText('Aviso: ' + w)
@@ -776,6 +800,8 @@ class MainWindow(QMainWindow):
         m = QMenu(self)
         sel = self.ctrl.selection
         if sel:
+            self.add_type_change_menu(m, sel)
+            m.addSeparator()
             m.addAction(self.a['mark_existing'])
             m.addAction(self.a['mark_projected'])
             m.addSeparator()
@@ -788,6 +814,42 @@ class MainWindow(QMainWindow):
             for k in ('paste', 'selall', 'fit'):
                 m.addAction(self.a[k])
         m.exec(global_pos)
+        m.deleteLater()
+
+    def add_type_change_menu(self, menu, selection):
+        from ..hydraulics.type_change import selection_types
+        project = self.ctrl.project
+        types = selection_types(project, selection)
+        if not types:
+            action = menu.addAction('Trocar elemento (seleção incompatível)')
+            action.setEnabled(False)
+            action.setToolTip('Selecione apenas nós ou apenas ligações, em camadas desbloqueadas.')
+            return
+        submenu = menu.addMenu('Trocar elemento' if len(selection) == 1 else 'Trocar elementos')
+        selected = set(selection)
+        uids = tuple(e.uid for e in project.network.elements() if e.uid in selected)
+        for kind in types:
+            label = 'Tipo de válvula…' if kind == 'valve' and all(
+                project.get(uid).KIND == 'valve' for uid in uids) else KIND_LABELS[kind] + '…'
+            action = submenu.addAction(label)
+            action.setData(kind)
+            action.setEnabled(kind == 'valve' or any(project.get(uid).KIND != kind for uid in uids))
+            action.triggered.connect(lambda checked=False, target=kind: self.change_element_type(target, uids))
+
+    def change_element_type(self, target, uids=None):
+        from .dialogs.type_change_dialog import TypeChangeDialog
+        from ..hydraulics.type_change import selection_types
+        uids = list(self.ctrl.selection if uids is None else uids)
+        if target not in selection_types(self.ctrl.project, uids):
+            self.st_msg.setText('Selecione elementos da mesma categoria em camadas desbloqueadas.')
+            return
+        dialog = TypeChangeDialog(self.ctrl, uids, target, self)
+        if dialog.exec() == QDialog.Accepted and dialog.plan is not None and dialog.plan.ready:
+            plan = dialog.plan
+            self.ctrl.apply(plan.changes, f'Trocar {len(plan.candidates)} elemento(s) para {KIND_LABELS[target]}')
+            self.st_msg.setText(f'{len(plan.candidates)} elemento(s) alterado(s). '
+                                'Ctrl+Z para desfazer. Execute nova simulação.')
+        dialog.deleteLater()
 
     def convert_cad(self):
         from .dialogs.dxf_dialogs import ConvertDialog
@@ -811,6 +873,18 @@ class MainWindow(QMainWindow):
         self.ctrl.apply(plan.changes, f'Converter {plan.n_pipes} entidades em tubulações')
         self.st_msg.setText(f'{plan.n_pipes} tubulações e {plan.n_new_nodes} junções criadas.')
 
+    def renumber_network(self):
+        from .dialogs.renumber_dialog import RenumberDialog
+        dialog = RenumberDialog(self.ctrl, self, self.results.slider.value())
+        if dialog.exec() != QDialog.Accepted or dialog.plan is None:
+            dialog.deleteLater()
+            return
+        plan = dialog.plan
+        self.ctrl.apply(plan.changes, 'Renumerar nós e trechos')
+        self.st_msg.setText(f'{len(plan.changes)} identificador(es) renumerados. '
+                            'Ctrl+Z desfaz a operação.')
+        dialog.deleteLater()
+
     def open_editor(self, kind, uid):
         from .dialogs.data_dialogs import CurvesDialog, PatternsDialog, ControlsDialog
         if kind == 'zoom':
@@ -821,7 +895,9 @@ class MainWindow(QMainWindow):
             self.d_table.show()
             self.d_table.raise_()
             return
-        cls(self.ctrl, uid, self).exec()
+        dialog = cls(self.ctrl, uid, self)
+        dialog.exec()
+        dialog.deleteLater()
 
     def open_scenarios(self):
         from .dialogs.data_dialogs import ScenariosDialog

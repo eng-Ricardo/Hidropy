@@ -1,4 +1,4 @@
-"""Tela de abertura: ciano, nome, subtítulo e crédito; dura ~2 s antes da janela principal."""
+"""Tela de abertura: marca AVANT HIDRO, proporção e sequência de inicialização."""
 
 
 def test_splash_pixmap(qapp):
@@ -8,14 +8,12 @@ def test_splash_pixmap(qapp):
     assert (pm.width(), pm.height()) == (splash.WIDTH, splash.HEIGHT)
     assert pm.width() > pm.height()                                   # retangular
     img = pm.toImage()
-    assert img.pixelColor(5, 5) == QColor('#0ABDDB')                   # fundo ciano
-    # há texto branco na faixa do título e no canto inferior direito (crédito)
-    def has_white(x0, y0, x1, y1):
-        return any(img.pixelColor(x, y).lightness() > 200
-                   for x in range(x0, x1, 2) for y in range(y0, y1, 2))
-    assert has_white(240, 110, 560, 190)
-    assert has_white(480, splash.HEIGHT - 34, splash.WIDTH - 18, splash.HEIGHT - 12)
-    assert not has_white(10, splash.HEIGHT - 34, 200, splash.HEIGHT - 12)    # crédito só à direita
+    assert img.pixelColor(5, 5) == QColor('#000000')
+    # A marca real aparece (azul da gota/letras), inclusive sem fontes de sistema.
+    assert any(img.pixelColor(x, y).blue() > img.pixelColor(x, y).red() + 35
+               for x in range(30, splash.WIDTH - 30, 5) for y in range(25, 310, 5))
+    large = splash.splash_pixmap(2.0)
+    assert (large.width(), large.height()) == (splash.WIDTH * 2, splash.HEIGHT * 2)
 
 
 def test_startup_shows_splash_then_main_window(qapp, monkeypatch):
@@ -40,6 +38,10 @@ def test_startup_shows_splash_then_main_window(qapp, monkeypatch):
 
     QTimer.singleShot(1000, early)
     QTimer.singleShot(3000, late)
-    app_mod.run(['hidropy'])
+    app_mod.run(['avant-hidro'])
     assert seen['early'] == (True, False)
     assert seen['late'] == (False, True)
+    from src import __version__
+    assert qapp.applicationName() == 'AVANT HIDRO'
+    assert qapp.applicationVersion() == __version__
+    assert qapp.organizationName() == 'AVANT'

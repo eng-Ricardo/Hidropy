@@ -1,4 +1,4 @@
-# HidroPy — linha de comando
+# AVANT HIDRO — linha de comando
 
 Referência completa da interface de linha de comando, para scripts e automação.
 
@@ -9,7 +9,7 @@ cálculos dos comandos F4, F5 e F6 da interface:
 python main.py cli <comando> projeto.shcad|rede.inp [opções] [--json]
 ```
 
-No executável: `HidroPy.exe cli <comando> ...`. `python main.py cli --help` e
+No executável: `AvantHidro.exe cli <comando> ...`. `python main.py cli --help` e
 `python main.py cli <comando> --help` listam as opções.
 
 | Comando | O que faz |

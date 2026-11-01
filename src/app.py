@@ -9,10 +9,12 @@ import traceback
 
 from PySide6.QtWidgets import QApplication, QMessageBox
 
+from . import __version__
+from .branding import APP_NAME, APP_USER_MODEL_ID, ICON_PATH, ORGANIZATION
 from .utils.logging_setup import setup_logging
 
 log = logging.getLogger(__name__)
-ICON = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'hidropy.ico')
+ICON = str(ICON_PATH)
 
 
 def app_icon():
@@ -48,13 +50,14 @@ def run(argv=None) -> int:
         # ícone próprio na barra de tarefas também quando executado pelo python.exe
         try:
             import ctypes
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('HidroPy.App')
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_USER_MODEL_ID)
         except Exception:
             pass
     app = QApplication.instance() or QApplication(argv)
     _install_translation(app)
-    app.setApplicationName('HidroPy')
-    app.setOrganizationName('HidroPy')
+    app.setApplicationName(APP_NAME)
+    app.setApplicationVersion(__version__)
+    app.setOrganizationName(ORGANIZATION)
     app.setWindowIcon(app_icon())
     app.setStyle('Fusion')
     # tela de abertura: aparece antes de carregar a janela principal (importações pesadas)

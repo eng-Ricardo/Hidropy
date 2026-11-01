@@ -1,21 +1,23 @@
 ---
 name: hidropy
-description: Rodar o HidroPy (simulador hidráulico CAD em Python, https://github.com/caioews/Hidropy) pela linha de comando com saída JSON - informações da rede, validação, simulação EPANET, otimização de diâmetros pelo main4.py (algoritmo genético), comparação de cenários, gravação de cenários otimizados no projeto .shcad, aplicação da otimização, exportação DXF (planta de cálculo/execução), planilhas e relatórios. Use sempre que o usuário pedir para simular, otimizar, dimensionar ou "achar o melhor cenário" de uma rede de água (.shcad ou .inp), comparar cenários ou gerar saídas do HidroPy.
+description: Rodar o AVANT HIDRO (simulador hidráulico CAD em Python, https://github.com/eng-Ricardo/Hidropy) pela linha de comando com saída JSON - informações da rede, validação, simulação EPANET, otimização de diâmetros pelo main4.py (algoritmo genético), comparação de cenários, gravação de cenários otimizados no projeto .shcad, aplicação da otimização, exportação DXF (planta de cálculo/execução), planilhas e relatórios. Use sempre que o usuário pedir para simular, otimizar, dimensionar ou "achar o melhor cenário" de uma rede de água (.shcad ou .inp), comparar cenários ou gerar saídas do AVANT HIDRO.
 ---
 
-# HidroPy pela linha de comando
+# AVANT HIDRO pela linha de comando
 
-O HidroPy tem uma CLI feita para agentes. Ela usa exatamente o mesmo caminho da interface
+Alias de compatibilidade da skill `avant-hidro`.
+
+O AVANT HIDRO tem uma CLI feita para agentes. Ela usa exatamente o mesmo caminho da interface
 (F4 validar, F5 simular, F6 otimizar): EPANET via WNTR em subprocesso e o `main4.py` original
 (nunca o modifique). Os resultados gravados aparecem na interface como cenários.
 
 ## Como chamar
 
-Pasta do programa: a pasta onde está o `main.py` do HidroPy (código-fonte) ou o `HidroPy.exe`
+Pasta do programa: a pasta onde está o `main.py` do AVANT HIDRO (código-fonte) ou o `AvantHidro.exe`
 (versão executável). Se não souber onde ela fica, pergunte ao usuário.
 
 ```bash
-cd "<pasta do HidroPy>"
+cd "<pasta do AVANT HIDRO>"
 python main.py cli <comando> "<projeto.shcad | rede.inp>" [opções] --json
 ```
 
@@ -23,7 +25,7 @@ python main.py cli <comando> "<projeto.shcad | rede.inp>" [opções] --json
   mensagens vão para o **stderr**. Para ler só o JSON: `2>/dev/null`.
 - Campos fixos: `cli_versao`, `comando`, `ok`, `erro`, `arquivo`. Código de saída: `0` ok,
   `1` falha do cálculo/validação ou gravação recusada, `2` erro de uso/arquivo.
-- Versão executável: `HidroPy.exe cli ...` com os mesmos argumentos (no código-fonte,
+- Versão executável: `AvantHidro.exe cli ...` com os mesmos argumentos (no código-fonte,
   `python main.py cli`).
 - Ajuda: `python main.py cli --help`, `python main.py cli otimizar --help`.
 - Entrada `.inp`: arquivos em ANSI são convertidos sozinhos. Se o comando falhar listando
@@ -61,7 +63,7 @@ configuração usada fica guardada no resultado): `--geracoes` (NUM_GERACOES, pa
 
 1. **Preparar.** Se a entrada for `.inp`, converta uma vez e trabalhe só com o `.shcad`:
    `importar rede.inp --saida rede.shcad`. Se o usuário estiver com o projeto aberto no
-   HidroPy, peça para fechar (ou avise que deve reabrir depois sem salvar por cima): um
+   AVANT HIDRO, peça para fechar (ou avise que deve reabrir depois sem salvar por cima): um
    "Salvar" na interface apaga o que a CLI gravou.
 2. **Conhecer:** `info`. Anote nº de tubulações, `trechos_existentes`, custo pelo catálogo da
    rede atual, limites de pressão/velocidade e cenários já existentes.

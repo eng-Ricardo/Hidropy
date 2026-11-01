@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit,
-                               QMessageBox, QScrollArea, QVBoxLayout, QWidget)
+                               QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget)
 
 from ..hydraulics.models import KIND_LABELS
 from ..hydraulics.schema import (props_for, parse_value, format_demand_cats,
@@ -86,10 +86,50 @@ class PropertiesPanel(QWidget):
             self._add_editor(form, prop, elems)
         v.addWidget(box)
         if len(elems) == 1:
+            self._add_source(v, e0)
             self._add_results(v, e0)
         v.addStretch()
         self.scroll.setWidget(host)
         self._building = False
+
+    def _add_source(self, layout, element):
+        q = element.source_data.get('qepanet', {})
+        tag = element.source_data.get('epanet', {}).get('tag')
+        if not q and not tag:
+            return
+        box = QGroupBox('Dados de origem — QGIS / EPANET')
+        form = QFormLayout(box)
+        def row(label, value):
+            widget = QLabel(str(value))
+            widget.setTextFormat(Qt.PlainText)
+            widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            form.addRow(label, widget)
+        if q.get('original_id'):
+            row('Identificador original', q['original_id'])
+        if tag:
+            row('Etiqueta', tag)
+        if 'delta_z' in q:
+            row('Delta Z de origem (m)', f"{q['delta_z']:.6g}")
+        if getattr(element, 'ground_elevation', None) is not None:
+            row('Cota do terreno (m)', f'{element.ground_elevation:.6g}')
+        if 'pressure_head' in q:
+            row('Carga de pressão de origem (m)', f"{q['pressure_head']:.6g}")
+        if 'material' in q:
+            row('Material de origem', q['material'])
+        if q.get('vertex_profile'):
+            profile = q['vertex_profile']
+            row('Vértices com cota', f'{sum(r[2] is not None for r in profile)} / {len(profile)}')
+            button = QPushButton('Ver cotas dos vértices...')
+            def show():
+                from .dialogs.source_profile import SourceProfileDialog
+                dialog = SourceProfileDialog(element, self)
+                dialog.exec()
+                dialog.deleteLater()
+            button.clicked.connect(show)
+            form.addRow(button)
+        if q.get('unmatched_vertex_z'):
+            row('Cotas sem correspondência', len(q['unmatched_vertex_z']))
+        layout.addWidget(box)
 
     def _value(self, e, key):
         if key == 'geom_length':

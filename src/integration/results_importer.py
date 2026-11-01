@@ -16,6 +16,7 @@ def _base(kind: str, raw: dict, job, log: str) -> dict:
         'status': raw.get('status', 'failed'), 'error': raw.get('error', ''),
         'inp_sha256': job.export.sha256, 'scenario': job.scenario,
         'engine': raw.get('engine', ''), 'log': log, 'workdir': job.workdir,
+        'execution': raw.get('execution', {}),
         'unmapped': [],
     }
 

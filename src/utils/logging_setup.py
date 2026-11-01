@@ -1,4 +1,4 @@
-"""Log em arquivo (%LOCALAPPDATA%/SHCAD/logs/shcad.log) e no console."""
+"""Log em arquivo (%LOCALAPPDATA%/AvantHidro/logs/avant-hidro.log) e no console."""
 
 from __future__ import annotations
 
@@ -6,16 +6,18 @@ import logging
 import logging.handlers
 import os
 
+from ..branding import APP_SLUG, LOG_DIRECTORY
+
 
 def log_dir() -> str:
     base = os.environ.get('LOCALAPPDATA') or os.path.expanduser('~')
-    path = os.path.join(base, 'HidroPy', 'logs')
+    path = os.path.join(base, LOG_DIRECTORY, 'logs')
     os.makedirs(path, exist_ok=True)
     return path
 
 
 def log_path() -> str:
-    return os.path.join(log_dir(), 'hidropy.log')
+    return os.path.join(log_dir(), APP_SLUG + '.log')
 
 
 def setup_logging(level=logging.INFO):

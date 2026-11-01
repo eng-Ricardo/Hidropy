@@ -1,4 +1,4 @@
-"""HidroPy — simulador hidráulico CAD. Ponto de entrada.
+"""AVANT HIDRO — modelagem e projeto de redes hidráulicas. Ponto de entrada.
 
     python main.py [projeto.shcad | desenho.dxf | rede.inp]
 
@@ -10,7 +10,7 @@ Verificação sem interface (simulação + otimização curta pelo mesmo caminho
 
 Linha de comando para scripts e agentes (saída JSON com --json; ver README):
     python main.py cli <comando> projeto.shcad|rede.inp [opções] [--json]
-    HidroPy.exe cli <comando> ...      (comandos: info, validar, simular, otimizar, ...)
+    AvantHidro.exe cli <comando> ...      (comandos: info, validar, simular, otimizar, ...)
 """
 
 import os
@@ -76,6 +76,16 @@ def _cli(argv):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) >= 2 and sys.argv[1] == '--diagnostico':
+        _std_streams()
+        from src.diagnostics import run as diagnose
+        sys.exit(diagnose())
+    if len(sys.argv) >= 2 and sys.argv[1] in ('--version', '--versao'):
+        from src import __version__
+        _std_streams()
+        from src.branding import APP_NAME
+        print(f'{APP_NAME} {__version__}')
+        sys.exit(0)
     if len(sys.argv) >= 2 and sys.argv[1] == 'cli':
         sys.exit(_cli(sys.argv))
     if len(sys.argv) >= 4 and sys.argv[1] == '--worker':

@@ -16,13 +16,10 @@ import os
 import random
 import shutil
 import tempfile
-import warnings
 
 import numpy as np
 import wntr
 from deap import base, creator, tools
-
-warnings.filterwarnings('ignore')
 
 # =========================================================================
 # CONFIGURACOES GERAIS
@@ -139,34 +136,14 @@ PRESSAO_MAX = 50.0    # mca
 TOLERANCIA_PRESSAO = 0.01   # mca
 
 # =========================================================================
-# [CORRECAO 19] ALVO DE PRESSAO LIMITADO PELA TOPOGRAFIA
-#
-# Tratar PRESSAO_MIN como um valor unico e igual para todos os nos so
-# funciona quando a fonte tem carga para isso em TODOS eles. Na
-# ZN_Assentamento nao tem: o ponto de injecao esta na cota 40,96 m e o no
-# J-808 na cota 31,58 m, ou seja, 9,38 mca de carga estatica. Mesmo com
-# vazao zero e diametro infinito aquele no nunca passa de 9,38 mca -- os
-# 10 mca sao inalcancaveis por TOPOGRAFIA, nao por dimensionamento.
-#
-# O programa entao declarava o problema insoluvel e nem rodava, enquanto no
-# escritorio a rede e dimensionada normalmente aceitando 6 a 8 mca nos
-# trechos de menor pressao. O programa estava errado, nao o projeto.
-#
-# Agora o alvo e POR NO:
-#     alvo_i = min(PRESSAO_MIN, pressao_maxima_alcancavel_i - PERDA_ADMITIDA)
-# A "pressao maxima alcancavel" e medida rodando a rede toda no maior
-# diametro do catalogo -- funciona com bomba, varios reservatorios,
-# valvulas e periodo estendido, sem supor nada sobre a fonte. Para a imensa
-# maioria dos nos isso da exatamente PRESSAO_MIN; so os nos no limite
-# topografico recebem alvo reduzido, e todos sao listados no relatorio.
-#
-# PERDA_ADMITIDA_EXCECAO e quanta perda de carga se aceita gastar para
-# chegar num no que ja esta no limite. Quanto maior, mais barata a rede e
-# menor a pressao nesses nos.
+# LIMITES EXPLÍCITOS DE PRESSÃO
+# O alvo não é reduzido pela pressão de uma rede de referência. Se os
+# limites não puderem ser atendidos, a solução será apresentada como inviável.
+# PERDA_ADMITIDA_EXCECAO permanece apenas para ler configurações antigas.
 # =========================================================================
 
-PERDA_ADMITIDA_EXCECAO = 1.0   # m
-PRESSAO_MIN_ABSOLUTA = 6.0     # piso que voce aceita; abaixo disso, so avisa
+PERDA_ADMITIDA_EXCECAO = 1.0   # legado, sem relaxamento automático
+PRESSAO_MIN_ABSOLUTA = 6.0     # piso obrigatório, inclusive se PRESSAO_MIN for reduzida
 
 # =========================================================================
 # [CORRECAO 3] VELOCIDADE MINIMA REMOVIDA
@@ -238,6 +215,8 @@ DIAM_FIXOS = {t: wn.get_link(t).diameter for t in TRECHOS_FIXOS}
 # individuo levava (10 - 0) * 100000 = 1.000.000 de penalidade fixa.
 # Tanques tambem ficam de fora: o nivel deles nao e criterio de atendimento.
 JUNCOES = wn.junction_name_list
+if not JUNCOES:
+    raise ValueError('A otimização exige ao menos uma junção.')
 
 if PROB_MUT_GENE is None:
     PROB_MUT_GENE = 2.0 / NUM_TUBOS
@@ -311,7 +290,8 @@ def rodar_epanet(diam_por_tubo):
     for nome, d in DIAM_FIXOS.items():
         wn.get_link(nome).diameter = d
 
-    res = wntr.sim.EpanetSimulator(wn).run_sim(file_prefix=PREFIXO_TEMP)
+    from src.integration.epanet import run_epanet
+    res = run_epanet(wn, PREFIXO_TEMP)
 
     p = res.node['pressure'].loc[:, JUNCOES]
     v = res.link['velocity'].loc[:, TUBOS].abs()
@@ -324,6 +304,9 @@ def rodar_epanet(diam_por_tubo):
         'v_max': v.max(axis=0).values,        # por trecho
         'j_max': hl.max(axis=0).values * 1000.0,   # m/m -> m/km [CORRECAO 4]
         'q_max': q.max(axis=0).values,
+        'v_max_all': res.link['velocity'].loc[:, TODOS_TUBOS].abs().max(axis=0).values,
+        'j_max_all': res.link['headloss'].loc[:, TODOS_TUBOS].abs().max(axis=0).values * 1000.0,
+        'q_max_all': res.link['flowrate'].loc[:, TODOS_TUBOS].abs().max(axis=0).values,
         'hora_critica': float(p.min(axis=1).idxmin()) / 3600.0,
     }
 
@@ -345,43 +328,22 @@ def _idx_por_velocidade(q_max):
 
 
 def definir_alvos_pressao():
-    """
-    [CORRECAO 19] Alvo de pressao por no, limitado pelo que a rede consegue
-    fisicamente entregar. Devolve (alvos, teto) em mca.
-    """
+    """Mantém os limites solicitados; a rede de maior DN é apenas uma referência."""
     print("=" * 74)
     print("ALVO DE PRESSAO POR NO")
     print("=" * 74)
 
-    # teto fisico: rede toda no maior diametro do catalogo = perda minima
-    teto = rodar_epanet({t: CATALOGO_COMPLETO[-1][1] for t in TUBOS})['p_min']
-    alvos = np.minimum(PRESSAO_MIN, np.maximum(0.0,
-                                               teto - PERDA_ADMITIDA_EXCECAO))
-
-    excecoes = np.where(alvos < PRESSAO_MIN - 1e-9)[0]
-    print(f"  Pressao minima adotada ..: {PRESSAO_MIN:.2f} mca "
-          f"(NBR 12218)")
-    print(f"  Nos no limite topografico: {len(excecoes)} de {len(JUNCOES)}")
-
-    if len(excecoes):
-        print()
-        print("  No           cota (m)   teto fisico (mca)   alvo adotado (mca)")
-        print("  " + "-" * 68)
-        for i in sorted(excecoes, key=lambda k: alvos[k])[:15]:
-            print(f"  {JUNCOES[i]:<12} {wn.get_node(JUNCOES[i]).elevation:8.2f} "
-                  f"{teto[i]:18.2f} {alvos[i]:20.2f}")
-        if len(excecoes) > 15:
-            print(f"  ... (+{len(excecoes) - 15} nos)")
-        print()
-        print(f"  Nestes nos {PRESSAO_MIN:.0f} mca e inalcancavel: a carga da "
-              "fonte nao chega la nem com")
-        print(f"  vazao zero. O alvo vira o teto fisico menos "
-              f"{PERDA_ADMITIDA_EXCECAO:.1f} m de perda admitida.")
-        abaixo = [JUNCOES[i] for i in excecoes if alvos[i] < PRESSAO_MIN_ABSOLUTA]
-        if abaixo:
-            print(f"  >>> ATENCAO: {len(abaixo)} no(s) com alvo abaixo de "
-                  f"{PRESSAO_MIN_ABSOLUTA:.0f} mca: {abaixo[:8]}")
-            print("  >>> Considere setor separado, booster ou revisao de cota.")
+    try:
+        teto = rodar_epanet({t: CATALOGO_COMPLETO[-1][1] for t in TUBOS})['p_min']
+    except Exception as error:
+        print(f'  >>> Rede de referencia sem convergencia: {error}')
+        teto = np.full(len(JUNCOES), np.nan)
+    alvos = np.full(len(JUNCOES), max(PRESSAO_MIN, PRESSAO_MIN_ABSOLUTA))
+    print(f"  Pressao minima exigida ..: {alvos[0]:.2f} mca")
+    abaixo = int((teto < alvos - TOLERANCIA_PRESSAO).sum())
+    print(f"  Nos abaixo do limite na rede de referencia: {abaixo}")
+    if abaixo:
+        print("  >>> Os limites de pressao foram mantidos. A referencia nao atende.")
     print()
     return alvos, teto
 
@@ -419,7 +381,11 @@ def escolher_faixa():
 
     # (a) DN exigido pela velocidade maxima, medido com a rede toda no maior
     #     diametro (vazoes praticamente independentes do diametro escolhido)
-    ref = rodar_epanet({t: CATALOGO_COMPLETO[-1][1] for t in TUBOS})
+    try:
+        ref = rodar_epanet({t: CATALOGO_COMPLETO[-1][1] for t in TUBOS})
+    except Exception:
+        print('  Referencia sem convergencia; mantendo o catalogo completo.')
+        return i_min, n - 1
     i_vel = _idx_por_velocidade(ref['q_max'])
     print(f"  Vazao maxima em um trecho: {ref['q_max'].max() * 1000:.2f} L/s")
     print(f"  DN minimo por velocidade ({VELOCIDADE_MAX:.1f} m/s): "
@@ -428,7 +394,10 @@ def escolher_faixa():
     # (b) menor DN uniforme que ainda atende o ALVO de pressao de cada no
     i_press = None
     for k in range(n):
-        r = rodar_epanet({t: CATALOGO_COMPLETO[k][1] for t in TUBOS})
+        try:
+            r = rodar_epanet({t: CATALOGO_COMPLETO[k][1] for t in TUBOS})
+        except Exception:
+            continue  # um candidato sem convergência não invalida os demais
         if np.all(r['p_min'] >= ALVO_PRESSAO - TOLERANCIA_PRESSAO):
             i_press = k
             break
@@ -486,8 +455,8 @@ N_OPCOES = len(CATALOGO)
 # =========================================================================
 
 CUSTO_REF = COMPRIMENTO_TOTAL * CUSTO_M[0]
-PENAL_DEGRAU = 2.0 * CUSTO_REF
-PENAL_ESCALA = 10.0 * CUSTO_REF
+PENAL_DEGRAU = COMPRIMENTO_TOTAL * max(CUSTO_M) + 1.0
+PENAL_ESCALA = max(1.0, CUSTO_REF) * 10.0
 
 
 # =========================================================================
@@ -502,28 +471,29 @@ def detalhar(indices):
     try:
         r = rodar_epanet({t: DIAM_M[idx[i]] for i, t in enumerate(TUBOS)})
     except Exception as erro:
-        return {'ok': False, 'erro': str(erro), 'fitness': 1e15, 'custo': custo}
+        return {'ok': False, 'erro': str(erro), 'fitness': float('inf'), 'custo': custo}
 
-    if not (np.all(np.isfinite(r['p_min'])) and np.all(np.isfinite(r['v_max']))):
+    if not all(np.isfinite(r[key]).all() for key in (
+            'p_min', 'p_max', 'v_max_all', 'j_max_all', 'q_max_all')):
         return {'ok': False, 'erro': 'simulacao nao convergiu',
-                'fitness': 1e15, 'custo': custo}
+                'fitness': float('inf'), 'custo': custo}
 
-    # ---- violacoes RELATIVAS (adimensionais) ----------------------------
-    # [CORRECAO 19] alvo POR NO, nao um PRESSAO_MIN unico
+    # ---- violações relativas; os alvos mantêm os limites configurados ----
     v_pmin = (np.maximum(0.0, ALVO_PRESSAO - TOLERANCIA_PRESSAO - r['p_min'])
-              / PRESSAO_MIN)
+              / max(PRESSAO_MIN, PRESSAO_MIN_ABSOLUTA, 1e-12))
     v_pmax = (np.maximum(0.0, r['p_max'] - PRESSAO_MAX - TOLERANCIA_PRESSAO)
               / PRESSAO_MAX)
-    v_vmax = np.maximum(0.0, r['v_max'] - VELOCIDADE_MAX) / VELOCIDADE_MAX
+    v_vmax = np.maximum(0.0, r['v_max_all'] - VELOCIDADE_MAX) / VELOCIDADE_MAX
 
     if APLICAR_LIMITE_PERDA_UNITARIA:
         # ponderado pelo comprimento: o que importa e a carga perdida, nao o
         # gradiente de um trecho de 4 m
-        peso = COMPRIMENTOS / COMPRIMENTO_TOTAL
-        v_j = (np.maximum(0.0, r['j_max'] - PERDA_CARGA_MAX)
+        comprimentos = np.array([wn.get_link(t).length for t in TODOS_TUBOS])
+        peso = comprimentos / comprimentos.sum()
+        v_j = (np.maximum(0.0, r['j_max_all'] - PERDA_CARGA_MAX)
                / PERDA_CARGA_MAX) * peso
     else:
-        v_j = np.zeros(NUM_TUBOS)
+        v_j = np.zeros(len(TODOS_TUBOS))
 
     viol = float(v_pmin.sum() + v_pmax.sum() + v_vmax.sum() + v_j.sum())
     fitness = custo + PENAL_DEGRAU + PENAL_ESCALA * viol if viol > 0 else custo
@@ -535,7 +505,7 @@ def detalhar(indices):
         'n_p_baixa': int((v_pmin > 0).sum()),
         'n_p_alta': int((v_pmax > 0).sum()),
         'n_v_alta': int((v_vmax > 0).sum()),
-        'n_j_alta': int((r['j_max'] > PERDA_CARGA_MAX).sum()),
+        'n_j_alta': int((r['j_max_all'] > PERDA_CARGA_MAX).sum()),
     })
     return d
 
@@ -549,8 +519,10 @@ _cache = {}
 def avaliar(individuo):
     chave = tuple(individuo)
     if chave not in _cache:
-        _cache[chave] = detalhar(individuo)['fitness']
-    return _cache[chave],
+        d = detalhar(individuo)
+        # Ordenação lexicográfica: viabilidade, menor violação e, depois, custo.
+        _cache[chave] = (d['violacao'], d['custo']) if d['ok'] else (float('inf'), float('inf'))
+    return _cache[chave]
 
 
 # =========================================================================
@@ -576,14 +548,14 @@ def mutar_passo(individuo):
     return individuo,
 
 
-if "FitnessMin" not in creator.__dict__:
-    creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-if "Individual" not in creator.__dict__:
-    creator.create("Individual", list, fitness=creator.FitnessMin)
+if "HidroPyFitness" not in creator.__dict__:
+    creator.create("HidroPyFitness", base.Fitness, weights=(-1.0, -1.0))
+if "HidroPyIndividual" not in creator.__dict__:
+    creator.create("HidroPyIndividual", list, fitness=creator.HidroPyFitness)
 
 toolbox = base.Toolbox()
 toolbox.register("attr_idx", random.randrange, N_OPCOES)
-toolbox.register("individual", tools.initRepeat, creator.Individual,
+toolbox.register("individual", tools.initRepeat, creator.HidroPyIndividual,
                  toolbox.attr_idx, n=NUM_TUBOS)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", avaliar)
@@ -602,10 +574,10 @@ def populacao_inicial(n):
     desde a geracao 1: o GA nunca devolve algo pior que ela, so pode
     baratear a partir dai.
     """
-    pop = [creator.Individual([k] * NUM_TUBOS) for k in range(N_OPCOES)]
+    pop = [creator.HidroPyIndividual([k] * NUM_TUBOS) for k in range(N_OPCOES)]
     while len(pop) < n:
         teto = random.randrange(1, N_OPCOES + 1)   # vies para os menores
-        pop.append(creator.Individual(
+        pop.append(creator.HidroPyIndividual(
             [random.randrange(teto) for _ in range(NUM_TUBOS)]))
     return pop[:max(n, N_OPCOES)]
 
@@ -627,9 +599,9 @@ def relatorio(indices, titulo):
           f"   [limites {PRESSAO_MIN:.0f} - {PRESSAO_MAX:.0f}]")
     print(f"  Nos abaixo do alvo ......: {d['n_p_baixa']}"
           f"   (nos acima do maximo: {d['n_p_alta']})")
-    print(f"  Velocidade maxima .......: {d['v_max'].max():.3f} m/s"
+    print(f"  Velocidade maxima .......: {d['v_max_all'].max():.3f} m/s"
           f"   [limite {VELOCIDADE_MAX:.2f}]   ({d['n_v_alta']} trechos acima)")
-    print(f"  Perda unitaria maxima ...: {d['j_max'].max():.2f} m/km"
+    print(f"  Perda unitaria maxima ...: {d['j_max_all'].max():.2f} m/km"
           f"   ({d['n_j_alta']} trechos acima de {PERDA_CARGA_MAX:.0f} m/km)")
     if PERIODO_ESTENDIDO:
         print(f"  Hora critica ............: {d['hora_critica']:.1f} h")
@@ -644,10 +616,8 @@ def teste_viabilidade():
     """
     [CORRECAO 15] Teste de viabilidade ANTES de otimizar.
 
-    Roda a rede inteira no MAIOR diametro da faixa. Essa e a solucao de menor
-    perda de carga possivel: se nem ela atende a pressao minima, o problema e
-    insoluvel e nenhum ajuste do GA vai consertar. Sem este teste, o programa
-    rodava 150 geracoes e devolvia calado uma rede com pressao negativa.
+    Simula uma rede uniforme no maior diâmetro como diagnóstico. O resultado
+    não prova inviabilidade de todas as combinações em redes com controles.
 
     Tambem imprime a carga disponivel por no (carga da fonte - cota), que
     mostra qual e o no critico e quanta perda de carga o projeto pode gastar
@@ -704,23 +674,17 @@ def teste_viabilidade():
     d = detalhar([N_OPCOES - 1] * NUM_TUBOS)
     if not d['ok']:
         print(f"  >>> A simulacao no maior DN FALHOU: {d['erro']}")
-        print("  >>> Nao da para seguir: revise a rede no EPANET "
-              "(nos desconectados, dados faltando).")
+        print('  >>> A busca tentara os demais candidatos; resultados sem convergencia '
+              'serao descartados.')
         print()
-        return False
+        return True
 
-    print(f"  Rede inteira em DN{DN_MM[-1]} (perda de carga minima possivel):")
+    print(f"  Rede de referencia inteira em DN{DN_MM[-1]}:")
     print(f"    pressao minima ....: {d['p_min'].min():.2f} mca em "
           f"{JUNCOES[int(d['p_min'].argmin())]}")
     print(f"    nos abaixo do alvo : {d['n_p_baixa']}")
 
-    # [CORRECAO 20] Isto era um ABORT: o programa encerrava sem rodar o GA.
-    # Errado por dois motivos. Primeiro, com o alvo por no [CORRECAO 19] o
-    # caso comum (no no limite topografico) deixa de ser violacao. Segundo,
-    # quando sobra violacao de verdade, a rede de menor violacao continua
-    # sendo um resultado util -- e ela que mostra o quanto falta e onde,
-    # embasando a decisao de booster, setorizacao ou revisao de cota.
-    # Agora o programa AVISA e roda assim mesmo.
+    # A busca continua para encontrar uma solução viável ou a menor violação.
     if d['n_p_baixa'] > 0:
         print()
         print("  >>> AVISO: nem no maior diametro todos os nos alcancam o "
@@ -733,8 +697,8 @@ def teste_viabilidade():
         print("  >>>   2) setorizar (zona alta separada);")
         print("  >>>   3) revisar as demandas nodais e as cotas dos nos "
               "criticos;")
-        print("  >>>   4) rever PRESSAO_MIN / PERDA_ADMITIDA_EXCECAO.")
-    else:
+        print("  >>>   4) revisar os criterios de projeto explicitamente.")
+    elif d['viavel']:
         print("    -> existe pelo menos uma solucao viavel. Otimizacao faz "
               "sentido.")
 
@@ -781,8 +745,10 @@ def main():
     # nao o melhor de toda a execucao.
     hof = tools.HallOfFame(1)
     hof.update(pop)
+    if not np.isfinite(hof[0].fitness.values[0]):
+        raise RuntimeError('Nenhum candidato da população inicial convergiu no EPANET.')
 
-    melhor_fit = hof[0].fitness.values[0]
+    melhor_fit = hof[0].fitness.values
     sem_melhora = 0
 
     for gen in range(1, NUM_GERACOES + 1):
@@ -806,15 +772,16 @@ def main():
         pop = tools.selBest(pop + filhos, len(pop))
         hof.update(pop)
 
-        atual = hof[0].fitness.values[0]
-        if atual < melhor_fit - 1e-9:
+        atual = hof[0].fitness.values
+        if atual < melhor_fit:
             melhor_fit = atual
             sem_melhora = 0
         else:
             sem_melhora += 1
 
         if gen % 10 == 0 or gen == 1:
-            print(f"  Geracao {gen:4d} | melhor = R$ {atual:>15,.2f} "
+            print(f"  Geracao {gen:4d} | melhor = R$ {atual[1]:>15,.2f} "
+                  f"| violacao = {atual[0]:.6g} "
                   f"| avaliacoes unicas = {len(_cache)}")
 
         if sem_melhora >= PARADA_SEM_MELHORA:

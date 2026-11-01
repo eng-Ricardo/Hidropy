@@ -7,6 +7,7 @@ Toda alteração do modelo passa por `apply()`, que empilha um EditCommand
 from __future__ import annotations
 
 import logging
+import copy
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoCommand, QUndoStack
@@ -30,13 +31,17 @@ class ChangeSet:
 
 
 class EditCommand(QUndoCommand):
-    def __init__(self, controller: 'DocumentController', changes, text: str):
+    def __init__(self, controller: 'DocumentController', changes, text: str, document_state=None):
         super().__init__(text)
         self.ctrl = controller
         self.changes = list(changes)
+        self.document_state = copy.deepcopy(document_state)
 
     def _apply(self, forward: bool):
         p = self.ctrl.project
+        if self.document_state is not None:
+            for key, value in self.document_state[1 if forward else 0].items():
+                setattr(p, key, copy.deepcopy(value))
         added, removed, modified = set(), set(), set()
         seq = self.changes if forward else list(reversed(self.changes))
         # remoções primeiro, depois inclusões/alterações (mantém referências válidas)
@@ -116,6 +121,17 @@ class DocumentController(QObject):
         if not changes:
             return False
         self.undo_stack.push(EditCommand(self, changes, text))
+        return True
+
+    def apply_import(self, changes, options, meta, origin, text):
+        """Rede, opções e proveniência são aplicadas/desfeitas em uma operação."""
+        before = {'sim_options': self.project.sim_options, 'meta': self.project.meta,
+                  'display_origin': self.project.display_origin}
+        after = {'sim_options': options, 'meta': meta, 'display_origin': origin}
+        changes = [c for c in changes if c[1] != c[2]]
+        if not changes and before == after:
+            return False
+        self.undo_stack.push(EditCommand(self, changes, text, (before, after)))
         return True
 
     def _after_change(self, cs: ChangeSet):

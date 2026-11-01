@@ -9,6 +9,7 @@ Unidades internas (as mesmas do EPANET com FLOW UNITS = LPS):
 from __future__ import annotations
 
 import copy
+import math
 import uuid
 from dataclasses import dataclass, field, fields, asdict
 from typing import Any, ClassVar
@@ -34,6 +35,7 @@ class Element:
     name: str = ''
     layer: str = ''
     notes: str = ''
+    source_data: dict = field(default_factory=dict)  # metadados informativos; não alteram a hidráulica
 
     def __post_init__(self):
         if not self.layer:
@@ -61,6 +63,7 @@ class Node(Element):
     COLLECTION: ClassVar[str] = 'node'
     x: float = 0.0
     y: float = 0.0
+    ground_elevation: float | None = None
 
 
 @dataclass
@@ -275,18 +278,54 @@ class SimulationOptions:
     pattern_step_h: float = 1.0
     report_step_h: float = 1.0
     start_clocktime_h: float = 0.0
+    pattern_start_h: float = 0.0
+    report_start_h: float = 0.0
     headloss: str = 'H-W'             # H-W, D-W, C-M
     trials: int = 200
     accuracy: float = 0.001
     demand_multiplier: float = 1.0
     viscosity: float = 1.0
     specific_gravity: float = 1.0
+    demand_model: str = 'DDA'
+    minimum_pressure: float = 0.0    # parâmetros do modelo PDA, em m
+    required_pressure: float = 20.0
+    pressure_exponent: float = 0.5
+    emitter_exponent: float = 0.5
+    unbalanced: str = 'STOP'
+    unbalanced_value: int = 0
+    checkfreq: int = 2
+    maxcheck: int = 10
+    damplimit: float = 0.0
+    headerror: float = 0.0
+    flowchange: float = 0.0          # L/s
     default_pattern: str = ''         # uid
     # limites usados na verificação de restrições e nos mapas temáticos
     pressure_min: float = 10.0
     pressure_max: float = 50.0
     velocity_min: float = 0.0
     velocity_max: float = 3.0
+
+    def validate(self):
+        for name in ('duration_h', 'pattern_start_h', 'report_start_h'):
+            value = getattr(self, name)
+            if not math.isfinite(value) or value < 0:
+                raise ValueError(f'{name}: informe um tempo finito e não negativo.')
+        for name in ('hydraulic_step_h', 'pattern_step_h', 'report_step_h'):
+            value = getattr(self, name)
+            if not math.isfinite(value) or round(value * 3600) < 1:
+                raise ValueError(f'{name}: o passo deve ser de pelo menos um segundo.')
+        if self.report_start_h > self.duration_h:
+            raise ValueError('O início do relatório não pode superar a duração.')
+        if self.demand_model not in ('DDA', 'DD', 'PDA', 'PDD'):
+            raise ValueError('Modelo de demanda inválido; use DDA ou PDA.')
+        if self.demand_model in ('PDA', 'PDD'):
+            if not all(math.isfinite(v) for v in (
+                    self.minimum_pressure, self.required_pressure, self.pressure_exponent)) \
+                    or self.minimum_pressure < 0 or \
+                    self.required_pressure <= self.minimum_pressure or \
+                    self.required_pressure < 0.1 or self.pressure_exponent <= 0:
+                raise ValueError('PDA exige 0 ≤ pressão mínima < pressão requerida '
+                                 '(≥ 0,1 m) e expoente positivo.')
 
     def to_dict(self):
         return asdict(self)
@@ -326,6 +365,36 @@ class OptimizationSettings:
     velocidade_max: float = 3.0
     aplicar_limite_perda_unitaria: bool = False
     perda_carga_max: float = 10.0
+
+    def validate(self):
+        limits = (self.pressao_min, self.pressao_max, self.pressao_min_absoluta,
+                  self.tolerancia_pressao, self.velocidade_max, self.perda_carga_max)
+        if not all(math.isfinite(v) for v in limits):
+            raise ValueError('Os limites de otimização devem ser números finitos.')
+        if min(self.pressao_min, self.pressao_min_absoluta, self.tolerancia_pressao) < 0 \
+                or self.pressao_max <= max(self.pressao_min, self.pressao_min_absoluta):
+            raise ValueError('A pressão máxima deve superar a mínima e o piso obrigatório.')
+        if self.velocidade_max <= 0 or self.perda_carga_max <= 0:
+            raise ValueError('Os limites de velocidade e perda devem ser positivos.')
+        if self.tam_populacao < 2 or self.num_geracoes < 1 or self.tam_torneio < 1 \
+                or self.parada_sem_melhora < 1 or self.margem_dn_acima < 0:
+            raise ValueError('Parâmetros do algoritmo genético inválidos.')
+        if not 0 <= self.semente < 2 ** 32:
+            raise ValueError('A semente deve estar entre 0 e 2³² − 1.')
+        for probability in (self.prob_cruzamento, self.prob_mutacao, self.prob_mut_gene):
+            if probability is not None and (not math.isfinite(probability)
+                                            or not 0 <= probability <= 1):
+                raise ValueError('As probabilidades devem estar entre 0 e 1.')
+        catalog = self.catalogo_completo
+        if not catalog or any(len(row) != 3 or not all(math.isfinite(v) for v in row)
+                              or row[0] <= 0 or row[1] <= 0 or row[2] < 0 for row in catalog):
+            raise ValueError('Catálogo inválido: DN e diâmetro positivos e custo não negativo.')
+        if any(a[0] >= b[0] or a[1] >= b[1] for a, b in zip(catalog, catalog[1:])):
+            raise ValueError('O catálogo deve ter DNs e diâmetros estritamente crescentes.')
+        if not any((self.dn_min_permitido is None or row[0] >= self.dn_min_permitido)
+                   and (self.dn_max_permitido is None or row[0] <= self.dn_max_permitido)
+                   for row in catalog):
+            raise ValueError('A faixa de DN não contém nenhum diâmetro do catálogo.')
 
     def to_dict(self):
         return asdict(self)

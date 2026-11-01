@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel,
                                QLineEdit, QMessageBox, QPushButton, QTabWidget, QVBoxLayout,
-                               QWidget, QFormLayout)
+                               QWidget, QFormLayout, QScrollArea)
 
 from .forms import FieldForm
 
@@ -13,6 +14,7 @@ class SimOptionsDialog(QDialog):
     def __init__(self, project, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Opções de simulação')
+        self.resize(680, 640)
         self.project = project
         o = project.sim_options
         pats = [('', '(nenhum)')] + [(u, p.name) for u, p in project.network.patterns.items()]
@@ -23,8 +25,12 @@ class SimOptionsDialog(QDialog):
                                                                    'decimals': 3}),
             ('pattern_step_h', 'Passo dos padrões (h)', 'float', {'min': 0.001, 'max': 24,
                                                                   'decimals': 3}),
+            ('pattern_start_h', 'Deslocamento inicial dos padrões (h)', 'float',
+             {'min': 0, 'max': 8760, 'decimals': 4}),
             ('report_step_h', 'Passo de relatório (h)', 'float', {'min': 0.001, 'max': 24,
                                                                   'decimals': 3}),
+            ('report_start_h', 'Início do relatório (h)', 'float',
+             {'min': 0, 'max': 8760, 'decimals': 4}),
             ('start_clocktime_h', 'Hora de início (h)', 'float', {'min': 0, 'max': 24,
                                                                   'decimals': 2}),
             ('headloss', 'Fórmula de perda de carga', 'choice',
@@ -34,6 +40,11 @@ class SimOptionsDialog(QDialog):
             ('accuracy', 'Precisão', 'float', {'min': 1e-6, 'max': 0.1, 'decimals': 6}),
             ('demand_multiplier', 'Multiplicador global de demanda (coef. de consumo)', 'float',
              {'min': 0, 'max': 100, 'decimals': 3}),
+            ('demand_model', 'Modelo de demanda', 'choice', {'choices': [
+                ('DDA', 'Demanda fixa (DDA)'), ('PDA', 'Dependente de pressão (PDA)')]}),
+            ('minimum_pressure', 'PDA: pressão de demanda nula (m)', 'float', {'min': 0}),
+            ('required_pressure', 'PDA: pressão para demanda integral (m)', 'float', {'min': 0.1}),
+            ('pressure_exponent', 'PDA: expoente de pressão', 'float', {'min': 0.001}),
             ('viscosity', 'Viscosidade relativa', 'float', {'min': 0, 'max': 100}),
             ('specific_gravity', 'Densidade relativa', 'float', {'min': 0, 'max': 100}),
             ('default_pattern', 'Padrão de demanda padrão', 'choice', {'choices': pats}),
@@ -48,7 +59,10 @@ class SimOptionsDialog(QDialog):
         tabs = QTabWidget()
         self.f1 = FieldForm(o, spec)
         self.f2 = FieldForm(o, limits)
-        tabs.addTab(self.f1, 'Motor (EPANET)')
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.f1)
+        tabs.addTab(scroll, 'Motor (EPANET)')
         w = QWidget()
         lv = QVBoxLayout(w)
         lv.addWidget(QLabel('Limites usados na verificação de restrições e nos destaques dos '
@@ -57,16 +71,21 @@ class SimOptionsDialog(QDialog):
         tabs.addTab(w, 'Limites de verificação')
         v = QVBoxLayout(self)
         v.addWidget(tabs)
-        v.addWidget(QLabel('Simulação dirigida por pressão e qualidade da água: não integradas '
-                           '(ver ANALISE_DO_PROJETO.md).'))
+        v.addWidget(QLabel('O modelo PDA calcula a demanda entregue em função da pressão. '
+                           'A análise de qualidade da água não está integrada.'))
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         v.addWidget(bb)
 
     def accept(self):
-        self.f1.apply()
-        self.f2.apply()
+        candidate = replace(self.project.sim_options, **self.f1.values(), **self.f2.values())
+        try:
+            candidate.validate()
+        except ValueError as error:
+            QMessageBox.warning(self, 'Parâmetros inválidos', str(error))
+            return
+        self.project.sim_options = candidate
         super().accept()
 
 

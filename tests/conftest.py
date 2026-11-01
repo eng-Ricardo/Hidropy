@@ -14,9 +14,18 @@ MAIN4 = os.path.join(ROOT, 'main4.py')
 
 @pytest.fixture(scope='session')
 def qapp():
+    import gc
+    from PySide6.QtCore import QCoreApplication, QEvent
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication([])
     yield app
+    # Destrói widgets e seus ciclos Python enquanto QApplication ainda está viva.
+    # Deixar essa ordem para o encerramento do interpretador pode abortar no Windows.
+    for widget in app.topLevelWidgets():
+        widget.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    app.processEvents()
+    gc.collect()
 
 
 @pytest.fixture

@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import re
+from itertools import combinations
 from dataclasses import dataclass
 
 from . import connectivity
+from .series_data import validate_curve, validate_pattern
 from .models import KIND_LABELS
 from .project import Project
 
@@ -29,6 +31,43 @@ class Issue:
 
 def _label(e) -> str:
     return f"{KIND_LABELS.get(e.KIND, e.KIND)} '{e.name}'"
+
+
+def valve_connection_issues(net) -> list[Issue]:
+    """Restrições topológicas do EPANET (manual 2.2, modelo de válvulas)."""
+    issues, groups, pairs = [], {}, set()
+    valves = [e for e in net.links.values() if e.KIND == 'valve']
+    for v in valves:
+        if v.valve_type in ('PRV', 'PSV', 'FCV') and any(
+                net.nodes.get(uid) is not None and net.nodes[uid].KIND in ('reservoir', 'tank')
+                for uid in (v.start, v.end)):
+            issues.append(Issue(ERROR, 'VALVULA_FONTE',
+                                f"{_label(v)}: {v.valve_type} não pode ligar-se diretamente "
+                                'a reservatório ou tanque (regra do EPANET).', v.uid))
+        for side in ('start', 'end'):
+            groups.setdefault((v.valve_type, side, getattr(v, side)), []).append(v)
+
+    def add_pair(a, b, reason):
+        a, b = sorted((a, b), key=lambda e: e.uid)
+        key = (a.uid, b.uid, reason)
+        if a.uid != b.uid and key not in pairs:
+            pairs.add(key)
+            issues.append(Issue(ERROR, 'VALVULA_ARRANJO',
+                                f"Válvulas '{a.name}' e '{b.name}': {reason} (regra do EPANET).", b.uid))
+
+    for (kind, side, _), group in groups.items():
+        if (kind, side) in (('PRV', 'end'), ('PSV', 'start')):
+            for a, b in combinations(group, 2):
+                add_pair(a, b, f'{kind} não podem compartilhar o mesmo nó ' +
+                         ('final' if side == 'end' else 'inicial'))
+    for v in valves:
+        if v.valve_type in ('PRV', 'PSV'):
+            for other in groups.get((v.valve_type, 'start', v.end), ()):
+                add_pair(v, other, f'{v.valve_type} não podem ser ligadas em série')
+        if v.valve_type == 'PRV':
+            for other in groups.get(('PSV', 'start', v.end), ()):
+                add_pair(v, other, 'PSV não pode ficar a jusante de PRV')
+    return issues
 
 
 def validate(project: Project) -> list[Issue]:
@@ -140,9 +179,6 @@ def validate(project: Project) -> list[Issue]:
                 elif c.curve_type != 'PUMP':
                     err('CURVA_TIPO', f'{_label(l)}: a curva associada não é do tipo PUMP.',
                         l.uid)
-                elif len(c.points) not in (1, 3) and len(c.points) < 4:
-                    err('CURVA_INCOMPLETA', f'{_label(l)}: curva de bomba precisa de 1, 3 ou '
-                                            'mais pontos.', l.uid)
             elif not l.power or l.power <= 0:
                 err('BOMBA_SEM_CURVA', f'{_label(l)}: informe curva característica ou potência.',
                     l.uid)
@@ -161,22 +197,26 @@ def validate(project: Project) -> list[Issue]:
                     err('CURVA_INEXISTENTE', f'{_label(l)}: GPV exige curva de perda.', l.uid)
             elif l.setting is None or l.setting < 0:
                 err('VALVULA_AJUSTE', f'{_label(l)}: ajuste (setting) inválido.', l.uid)
-            for nid in (l.start, l.end):
-                if net.nodes[nid].KIND in ('reservoir', 'tank') and l.valve_type in (
-                        'PRV', 'PSV'):
-                    err('VALVULA_FONTE', f'{_label(l)}: PRV/PSV não pode ligar-se diretamente '
-                                         'a reservatório ou tanque (regra do EPANET).', l.uid)
+
+    issues.extend(valve_connection_issues(net))
 
     # --- curvas, padrões, controles -------------------------------------------
     for c in net.curves.values():
         if not c.points:
             err('CURVA_VAZIA', f'{_label(c)}: curva sem pontos.', c.uid)
-        xs = [p[0] for p in c.points]
-        if xs != sorted(xs):
-            err('CURVA_ORDEM', f'{_label(c)}: valores de X devem ser crescentes.', c.uid)
+        elif c.points:
+            try:
+                validate_curve(c.curve_type, c.points)
+            except ValueError as error:
+                err('CURVA_DADOS', f'{_label(c)}: {error}', c.uid)
     for p in net.patterns.values():
         if not p.multipliers:
             err('PADRAO_VAZIO', f'{_label(p)}: padrão sem multiplicadores.', p.uid)
+        else:
+            try:
+                validate_pattern(p.multipliers)
+            except ValueError as error:
+                err('PADRAO_DADOS', f'{_label(p)}: {error}', p.uid)
     for c in net.controls.values():
         if c.link not in net.links:
             err('CONTROLE_LIGACAO', f'{_label(c)}: ligação inexistente.', c.uid)

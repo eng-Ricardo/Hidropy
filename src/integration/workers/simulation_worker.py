@@ -16,6 +16,12 @@ import os
 import sys
 import traceback
 
+APP_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+if APP_ROOT not in sys.path:
+    sys.path.insert(0, APP_ROOT)
+
+from src.integration.epanet import execution_metadata, run_epanet
+
 
 def _clean(v):
     try:
@@ -47,8 +53,6 @@ def _read_rpt(prefix):
 
 
 def run(job):
-    import warnings
-    warnings.filterwarnings('ignore')
     import wntr
 
     inp = job['inp']
@@ -63,7 +67,7 @@ def run(job):
           + ('período estendido' if dur > 0 else 'regime permanente'), flush=True)
 
     try:
-        res = wntr.sim.EpanetSimulator(wn).run_sim(file_prefix=prefix)
+        res = run_epanet(wn, prefix)
     except Exception as e:
         rpt = _read_rpt(prefix)
         return {'status': 'failed', 'error': f'O EPANET falhou: {e}', 'report': rpt,
@@ -130,6 +134,7 @@ def run(job):
             if 'WARNING' in l.upper() or 'ERROR' in l.upper() or 'NEGATIVE' in l.upper()]
     return {'status': 'ok', 'engine': 'wntr.sim.EpanetSimulator',
             'wntr_version': getattr(wntr, '__version__', '?'),
+            'execution': execution_metadata(wn),
             'times': times, 'nodes': nodes, 'links': links,
             'report': rpt, 'warnings': warn}
 

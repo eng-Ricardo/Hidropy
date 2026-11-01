@@ -1,0 +1,26 @@
+name: Testes Windows
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements-windows-py312.lock
+      - run: python -m pip install -r requirements-windows-py312.lock
+      - run: python -m pip check
+      - run: python -m pytest -q

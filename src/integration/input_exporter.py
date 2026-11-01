@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from ..hydraulics.models import Junction, Reservoir, Tank, Pipe, Pump, Valve
 from ..hydraulics.project import Project
 from ..hydraulics.network import Network
+from .inp_compat import MARKER, export_extensions
 
 _BAD = re.compile(r'[\s;"]+')
 
@@ -28,8 +29,8 @@ class ExportResult:
 
 
 def _hours(h: float) -> str:
-    total_min = int(round(float(h) * 60))
-    return f'{total_min // 60}:{total_min % 60:02d}'
+    total = int(round(float(h) * 3600))
+    return f'{total // 3600}:{total // 60 % 60:02d}:{total % 60:02d}'
 
 
 def _num(v, nd=6) -> str:
@@ -120,7 +121,7 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
         params = []
         if p.curve:
             params.append(f'HEAD {N(p.curve)}')
-        elif p.power:
+        elif p.power is not None:
             params.append(f'POWER {_num(p.power)}')
         if p.speed is not None and abs(p.speed - 1.0) > 1e-12:
             params.append(f'SPEED {_num(p.speed)}')
@@ -169,6 +170,8 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
     w('[PATTERNS]')
     w(';ID\tMultipliers')
     for p in net.patterns.values():
+        for line in p.notes.splitlines():
+            w('; ' + line)
         mult = [_num(m) for m in (p.multipliers or [1.0])]
         for i in range(0, len(mult), 6):
             w(f'{N(p.uid)}\t' + '\t'.join(mult[i:i + 6]))
@@ -177,7 +180,7 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
     w('[CURVES]')
     w(';ID\tX-Value\tY-Value')
     for c in net.curves.values():
-        w(f';{c.curve_type}: {c.name}')
+        w(f';{c.curve_type}: ' + ' '.join(c.notes.splitlines()))
         for x, y in c.points:
             w(f'{N(c.uid)}\t{_num(x)}\t{_num(y)}')
     w('')
@@ -198,7 +201,9 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
     w(f'Duration\t{_hours(opt.duration_h)}')
     w(f'Hydraulic Timestep\t{_hours(opt.hydraulic_step_h)}')
     w(f'Pattern Timestep\t{_hours(opt.pattern_step_h)}')
+    w(f'Pattern Start\t{_hours(opt.pattern_start_h)}')
     w(f'Report Timestep\t{_hours(opt.report_step_h)}')
+    w(f'Report Start\t{_hours(opt.report_start_h)}')
     w(f'Start ClockTime\t{_hours(opt.start_clocktime_h)}')
     w('')
 
@@ -210,6 +215,21 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
     w(f'Demand Multiplier\t{_num(opt.demand_multiplier)}')
     w(f'Viscosity\t{_num(opt.viscosity)}')
     w(f'Specific Gravity\t{_num(opt.specific_gravity)}')
+    w(f'Demand Model\t{opt.demand_model}')
+    if opt.demand_model in ('PDA', 'PDD'):
+        w(f'Minimum Pressure\t{_num(opt.minimum_pressure)}')
+        w(f'Required Pressure\t{_num(opt.required_pressure)}')
+        w(f'Pressure Exponent\t{_num(opt.pressure_exponent)}')
+    w(f'Emitter Exponent\t{_num(opt.emitter_exponent)}')
+    unbalanced = opt.unbalanced
+    if unbalanced.upper() == 'CONTINUE':
+        unbalanced += f' {int(opt.unbalanced_value)}'
+    w(f'Unbalanced\t{unbalanced}')
+    w(f'Checkfreq\t{int(opt.checkfreq)}')
+    w(f'Maxcheck\t{int(opt.maxcheck)}')
+    w(f'Damplimit\t{_num(opt.damplimit)}')
+    w(f'Headerror\t{_num(opt.headerror)}')
+    w(f'Flowchange\t{_num(opt.flowchange)}')
     if opt.default_pattern and opt.default_pattern in net.patterns:
         w(f'Pattern\t{N(opt.default_pattern)}')
     w('')
@@ -231,11 +251,12 @@ def export_inp(project: Project, title: str = '') -> ExportResult:
         for v in l.vertices:
             w(f'{N(l.uid)}\t{_num(v[0], 4)}\t{_num(v[1], 4)}')
     w('')
+    out.extend(export_extensions(net, names))
     w('[END]')
 
     text = '\n'.join(out) + '\n'
     # o hash ignora o título: identifica apenas o conteúdo hidráulico
-    body = '\n'.join(out[3:])
+    body = '\n'.join(line for line in out[3:] if not line.startswith(MARKER))
     name_map = {
         'nodes': {names[u]: u for u in net.nodes},
         'links': {names[u]: u for u in net.links},
@@ -249,6 +270,7 @@ def network_hash(project: Project) -> str:
 
 
 def write_inp(project: Project, path: str, title: str = '') -> ExportResult:
+    project.sim_options.validate()
     res = export_inp(project, title)
     with open(path, 'w', encoding='utf-8', newline='\n') as f:
         f.write(res.text)

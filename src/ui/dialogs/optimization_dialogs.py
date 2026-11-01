@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFileDialog, QHBoxLayout, QLabel,
                                QMessageBox, QPlainTextEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget,
@@ -42,9 +43,7 @@ class OptimizationSettingsDialog(QDialog):
             ('pressao_max', 'Pressão máxima (mca) [PRESSAO_MAX]', 'float', {'min': 0}),
             ('tolerancia_pressao', 'Tolerância de pressão (mca) [TOLERANCIA_PRESSAO]', 'float',
              {'min': 0, 'decimals': 4}),
-            ('perda_admitida_excecao', 'Perda admitida nos nós no limite topográfico (m) '
-             '[PERDA_ADMITIDA_EXCECAO]', 'float', {'min': 0}),
-            ('pressao_min_absoluta', 'Piso de pressão para aviso (mca) [PRESSAO_MIN_ABSOLUTA]',
+            ('pressao_min_absoluta', 'Piso obrigatório de pressão (mca) [PRESSAO_MIN_ABSOLUTA]',
              'float', {'min': 0}),
             ('velocidade_max', 'Velocidade máxima (m/s) [VELOCIDADE_MAX]', 'float', {'min': 0}),
             ('aplicar_limite_perda_unitaria', 'Penalizar perda unitária '
@@ -92,7 +91,8 @@ class OptimizationSettingsDialog(QDialog):
         v.addWidget(QLabel(f'<b>Trechos existentes preservados</b> [TRECHOS_FIXOS]: {n_fixed} '
                            f'({L_fixed:,.1f} m) — mantêm o diâmetro e ficam fora do custo. '
                            'Marque-os em Rede hidráulica → Marcar trechos selecionados como '
-                           'existentes.<br>Bombas e válvulas não são dimensionadas pelo script.'))
+                           'existentes. As restrições hidráulicas também se aplicam a eles.'
+                           '<br>Bombas e válvulas não são dimensionadas pelo script.'))
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.button(QDialogButtonBox.Ok).setText('Salvar parâmetros')
         bb.accepted.connect(self.accept)
@@ -122,15 +122,15 @@ class OptimizationSettingsDialog(QDialog):
             if any(c[1] <= 0 or c[2] < 0 for c in cat):
                 raise ValueError('Diâmetros devem ser > 0 e custos ≥ 0.')
             vals = {**self.f_ga.values(), **self.f_cons.values(), **self.f_rng.values()}
+            candidate = replace(self.project.opt_settings, **vals, catalogo_completo=cat)
+            candidate.validate()
         except (ValueError, AttributeError) as e:
             QMessageBox.warning(self, 'Parâmetros inválidos', str(e))
             return
         if vals['prob_mut_gene'] is not None and not 0 <= vals['prob_mut_gene'] <= 1:
             QMessageBox.warning(self, 'Parâmetros inválidos', 'PROB_MUT_GENE deve estar em [0, 1].')
             return
-        for k, v in vals.items():
-            setattr(self.project.opt_settings, k, v)
-        self.project.opt_settings.catalogo_completo = cat
+        self.project.opt_settings = candidate
         super().accept()
 
 

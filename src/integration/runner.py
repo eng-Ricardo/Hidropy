@@ -13,6 +13,9 @@ import os
 import subprocess
 import sys
 import tempfile
+import queue
+import threading
+import time
 from dataclasses import dataclass, field
 
 from .input_exporter import ExportResult
@@ -95,14 +98,48 @@ def run_blocking(job: RunJob, timeout: float | None = None, on_output=None) -> t
                             env=job.env, cwd=job.workdir, text=True, encoding='utf-8',
                             errors='replace')
     lines = []
+    output = queue.Queue()
+
+    def read_output():
+        try:
+            for line in proc.stdout:
+                output.put(line)
+        finally:
+            proc.stdout.close()
+            output.put(None)
+
+    reader = threading.Thread(target=read_output, daemon=True)
+    reader.start()
+    deadline = None if timeout is None else time.monotonic() + timeout
     try:
-        for line in proc.stdout:
+        while True:
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
+                raise subprocess.TimeoutExpired(job.command, timeout)
+            try:
+                line = output.get(timeout=remaining)
+            except queue.Empty:
+                raise subprocess.TimeoutExpired(job.command, timeout)
+            if line is None:
+                break
             lines.append(line)
             if on_output:
                 on_output(line.rstrip('\n'))
-        code = proc.wait(timeout=timeout)
+        remaining = None if deadline is None else max(0, deadline - time.monotonic())
+        code = proc.wait(timeout=remaining)
     except subprocess.TimeoutExpired:
         proc.kill()
+        proc.wait()
+        reader.join(timeout=1)
+        while not output.empty():
+            line = output.get_nowait()
+            if line is not None:
+                lines.append(line)
         code = -1
         lines.append('Tempo limite excedido.\n')
+    except BaseException:
+        proc.kill()
+        proc.wait()
+        reader.join(timeout=1)
+        raise
     return code, ''.join(lines)

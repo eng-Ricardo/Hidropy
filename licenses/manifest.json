@@ -1,0 +1,806 @@
+[
+  {
+    "name": "cffi",
+    "version": "2.1.1",
+    "files": [
+      {
+        "source": "cffi-2.1.1.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/cffi/2e2d841f-LICENSE",
+        "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63"
+      }
+    ],
+    "urls": [
+      "Documentation, https://cffi.readthedocs.io/",
+      "Changelog, https://cffi.readthedocs.io/en/latest/whatsnew.html",
+      "Download, https://github.com/python-cffi/cffi/releases",
+      "Contact, https://groups.google.com/forum/#!forum/python-cffi",
+      "Source Code, https://github.com/python-cffi/cffi",
+      "Issue Tracker, https://github.com/python-cffi/cffi/issues"
+    ],
+    "license": "MIT-0"
+  },
+  {
+    "name": "contourpy",
+    "version": "1.4.0",
+    "files": [
+      {
+        "source": "contourpy-1.4.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/contourpy/1d8cb42f-LICENSE",
+        "sha256": "0e55e86a8fbf3e9b482ae8dc9e111e1b0dc09a7d300e7f480dda68c1125ed614"
+      }
+    ],
+    "urls": [
+      "Homepage, https://github.com/contourpy/contourpy",
+      "Changelog, https://contourpy.readthedocs.io/en/latest/changelog.html",
+      "Documentation, https://contourpy.readthedocs.io",
+      "Repository, https://github.com/contourpy/contourpy"
+    ],
+    "license": "BSD-3-Clause"
+  },
+  {
+    "name": "cycler",
+    "version": "0.12.1",
+    "files": [
+      {
+        "source": "cycler-0.12.1.dist-info/LICENSE",
+        "path": "licenses/dependencies/cycler/4e2f52aa-LICENSE",
+        "sha256": "f1218143d766da3fea66f13396b7f15df46a83303f29bf96ba6e98eb4d42f408"
+      }
+    ],
+    "urls": [
+      "homepage, https://matplotlib.org/cycler/",
+      "repository, https://github.com/matplotlib/cycler"
+    ],
+    "license": "BSD License"
+  },
+  {
+    "name": "deap",
+    "version": "1.4.4",
+    "files": [
+      {
+        "source": "deap-1.4.4.dist-info/LICENSE.txt",
+        "path": "licenses/dependencies/deap/6175b6cb-LICENSE.txt",
+        "sha256": "9ccf26cfe845e0eb8bb58053e47366e7ab6b697ae010f7650978d4b71b7d1fc1"
+      }
+    ],
+    "urls": [],
+    "license": "GNU Library or Lesser General Public License (LGPL)"
+  },
+  {
+    "name": "et_xmlfile",
+    "version": "2.0.0",
+    "files": [
+      {
+        "source": "et_xmlfile-2.0.0.dist-info/LICENCE.python",
+        "path": "licenses/dependencies/et-xmlfile/fba5b042-LICENCE.python",
+        "sha256": "4ccdaaebc0f44b83720ec0399bb7ab329adce067dd62f73c5535a2dc05628ab2"
+      },
+      {
+        "source": "et_xmlfile-2.0.0.dist-info/LICENCE.rst",
+        "path": "licenses/dependencies/et-xmlfile/b2e8b3b2-LICENCE.rst",
+        "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e"
+      }
+    ],
+    "urls": [
+      "Documentation, https://openpyxl.pages.heptapod.net/et_xmlfile/",
+      "Source, https://foss.heptapod.net/openpyxl/et_xmlfile",
+      "Tracker, https://foss.heptapod.net/openpyxl/et_xmfile/-/issues"
+    ],
+    "license": "MIT License"
+  },
+  {
+    "name": "ezdxf",
+    "version": "1.4.5",
+    "files": [
+      {
+        "source": "ezdxf-1.4.5.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/ezdxf/7ddfcca8-LICENSE",
+        "sha256": "b946f37324a89a38a51a790386607816828f3f98033429bffab036b201e42b07"
+      }
+    ],
+    "urls": [
+      "Repository, https://github.com/mozman/ezdxf",
+      "Documentation, https://ezdxf.readthedocs.io",
+      "Changelog, https://ezdxf.mozman.at/notes/#/page/changelog",
+      "Forum, https://github.com/mozman/ezdxf/discussions",
+      "Issues, https://github.com/mozman/ezdxf/issues",
+      "Website, https://ezdxf.mozman.at",
+      "Download, https://pypi.org/project/ezdxf"
+    ],
+    "license": "MIT License"
+  },
+  {
+    "name": "fonttools",
+    "version": "4.68.0",
+    "files": [
+      {
+        "source": "fonttools-4.68.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/fonttools/789daf48-LICENSE",
+        "sha256": "22bef80697ecfaa17f97e62b9a26dfa12820be05583e8dd12ad169b241274c99"
+      },
+      {
+        "source": "fonttools-4.68.0.dist-info/licenses/LICENSE.external",
+        "path": "licenses/dependencies/fonttools/8e6062d1-LICENSE.external",
+        "sha256": "b082a5f86775b2641f01bccb8b9c82908481de5f502bb254b1e13bfc2a9f303d"
+      }
+    ],
+    "urls": [],
+    "license": "MIT"
+  },
+  {
+    "name": "kiwisolver",
+    "version": "1.5.1",
+    "files": [
+      {
+        "source": "kiwisolver-1.5.1.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/kiwisolver/23ee68f7-LICENSE",
+        "sha256": "b24c2bf6185f31a124ad6bacccae3071bdc7ad7882de00b00110aa62abb76a15"
+      }
+    ],
+    "urls": [
+      "homepage, https://github.com/nucleic/kiwi",
+      "documentation, https://kiwisolver.readthedocs.io/en/latest/",
+      "repository, https://github.com/nucleic/kiwi",
+      "changelog, https://github.com/nucleic/kiwi/blob/main/releasenotes.rst"
+    ],
+    "license": "BSD License"
+  },
+  {
+    "name": "matplotlib",
+    "version": "3.11.2",
+    "files": [
+      {
+        "source": "matplotlib-3.11.2.dist-info/LICENSE",
+        "path": "licenses/dependencies/matplotlib/ac3134a9-LICENSE",
+        "sha256": "822e8e528147569a41975592aee19c11992ab667ba50451cd929031d5fc74491"
+      },
+      {
+        "source": "matplotlib/mpl-data/fonts/ttf/LICENSE_DEJAVU",
+        "path": "licenses/dependencies/matplotlib/f44a05d5-LICENSE_DEJAVU",
+        "sha256": "d75938dec098f06f0ac3c00853065d94f020be1c3c62ef1dc2975ba15b4d9b0e"
+      },
+      {
+        "source": "matplotlib/mpl-data/fonts/ttf/LICENSE_STIX",
+        "path": "licenses/dependencies/matplotlib/ed755d6e-LICENSE_STIX",
+        "sha256": "bab3d31dfef07f483624f2f65f2711e76065b8e7273278b1c071ede1041c9959"
+      }
+    ],
+    "urls": [
+      "Homepage, https://matplotlib.org",
+      "Download, https://matplotlib.org/stable/install/index.html",
+      "Documentation, https://matplotlib.org",
+      "Source Code, https://github.com/matplotlib/matplotlib",
+      "Bug Tracker, https://github.com/matplotlib/matplotlib/issues",
+      "Forum, https://discourse.matplotlib.org/",
+      "Donate, https://numfocus.org/donate-to-matplotlib"
+    ],
+    "license": "Python Software Foundation License"
+  },
+  {
+    "name": "moocore",
+    "version": "0.3.2",
+    "files": [
+      {
+        "source": "moocore-0.3.2.dist-info/licenses/COPYRIGHTS",
+        "path": "licenses/dependencies/moocore/7c90ddf0-COPYRIGHTS",
+        "sha256": "786e156a5f851ab8662f6e836e2ee5a83ca4dd55a6601d28e2b9eb60d91bf072"
+      }
+    ],
+    "urls": [
+      "Documentation, https://multi-objective.github.io/moocore/python/",
+      "Homepage, https://multi-objective.github.io/moocore/python/",
+      "Source, https://github.com/multi-objective/moocore/",
+      "Tracker, https://github.com/multi-objective/moocore/issues"
+    ],
+    "license": "LGPL-2.1-or-later"
+  },
+  {
+    "name": "networkx",
+    "version": "3.7",
+    "files": [
+      {
+        "source": "networkx-3.7.dist-info/licenses/LICENSE.txt",
+        "path": "licenses/dependencies/networkx/3a70ad94-LICENSE.txt",
+        "sha256": "6025f323ea29dc2f0ee0abd9523bf910186f55b0e148e6ebf646c55566278e2e"
+      }
+    ],
+    "urls": [
+      "Homepage, https://networkx.org/",
+      "Bug Tracker, https://github.com/networkx/networkx/issues",
+      "Documentation, https://networkx.org/documentation/stable/",
+      "Source Code, https://github.com/networkx/networkx"
+    ],
+    "license": "BSD-3-Clause"
+  },
+  {
+    "name": "numpy",
+    "version": "2.5.4",
+    "files": [
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/LICENSE.txt",
+        "path": "licenses/dependencies/numpy/fd4fe9af-LICENSE.txt",
+        "sha256": "a804dff0ead9fadc5293456410bcbfc32bf024be9c4513459663fb7b442d2341"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+        "path": "licenses/dependencies/numpy/a8e2e00a-LICENSE.txt",
+        "sha256": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+        "path": "licenses/dependencies/numpy/17df0fbe-COPYING",
+        "sha256": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/highway/LICENSE",
+        "path": "licenses/dependencies/numpy/85b4b837-LICENSE",
+        "sha256": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+        "path": "licenses/dependencies/numpy/920cfb5d-dragon4_LICENSE.txt",
+        "sha256": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+        "path": "licenses/dependencies/numpy/8dc9b61d-LICENSE.md",
+        "sha256": "a732977853530066790c42817087f4829b518dd98d340c916acbfd227e39d3cb"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE",
+        "path": "licenses/dependencies/numpy/0fccb437-LICENSE",
+        "sha256": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
+        "path": "licenses/dependencies/numpy/4164dbce-LICENSE.md",
+        "sha256": "8db000e158c162e7249787852d8c69764706502ccee725c06641b31c1e95c8af"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+        "path": "licenses/dependencies/numpy/5eebe773-LICENSE.txt",
+        "sha256": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/ma/LICENSE",
+        "path": "licenses/dependencies/numpy/fb7112b3-LICENSE",
+        "sha256": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/LICENSE.md",
+        "path": "licenses/dependencies/numpy/e1d55a9c-LICENSE.md",
+        "sha256": "b4bc2f4fa1c95778f1ed3dd8f14706bece399475b978f9f34b5d3cd72521b48a"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
+        "path": "licenses/dependencies/numpy/daa6b620-LICENSE.md",
+        "sha256": "cf5619f25b112d5ce7c896efffc8e610bcb345dfadcc19f2c1460aa48fff2c9e"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
+        "path": "licenses/dependencies/numpy/8cc9e5a8-LICENSE.md",
+        "sha256": "92c10699884321f1c2947fe2a70ab23b0fbf1507f756d89dd08f38c61fc3d4fa"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
+        "path": "licenses/dependencies/numpy/cca1c4f3-LICENSE.md",
+        "sha256": "41190663b77bee5302386495a07b7eabfbfa571aa0ae2f11da6764162062fc4f"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
+        "path": "licenses/dependencies/numpy/308f789d-LICENSE.md",
+        "sha256": "322ac46d870c8aeead6c53adcccc839296fb3c8e456eae155081297daf7f8013"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
+        "path": "licenses/dependencies/numpy/4b08416d-LICENSE.md",
+        "sha256": "28cad82ce1379dc529df30da78ec012d7d0d1d576b03ddcb93388aee53659f59"
+      },
+      {
+        "source": "numpy-2.5.4.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
+        "path": "licenses/dependencies/numpy/19f48fc8-LICENSE.md",
+        "sha256": "454ec7350e478e037061850b67395753b425b1cb0a34bbc26290b020bf89d763"
+      },
+      {
+        "source": "numpy/_core/include/numpy/random/LICENSE.txt",
+        "path": "licenses/dependencies/numpy/0f4ffb29-LICENSE.txt",
+        "sha256": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150"
+      },
+      {
+        "source": "numpy/ma/LICENSE",
+        "path": "licenses/dependencies/numpy/ddfcf346-LICENSE",
+        "sha256": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7"
+      },
+      {
+        "source": "numpy/random/LICENSE.md",
+        "path": "licenses/dependencies/numpy/c21c9379-LICENSE.md",
+        "sha256": "b4bc2f4fa1c95778f1ed3dd8f14706bece399475b978f9f34b5d3cd72521b48a"
+      }
+    ],
+    "urls": [
+      "homepage, https://numpy.org",
+      "documentation, https://numpy.org/doc/",
+      "source, https://github.com/numpy/numpy",
+      "download, https://pypi.org/project/numpy/#files",
+      "tracker, https://github.com/numpy/numpy/issues",
+      "release notes, https://numpy.org/doc/stable/release"
+    ],
+    "license": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0"
+  },
+  {
+    "name": "openpyxl",
+    "version": "3.1.5",
+    "files": [
+      {
+        "source": "openpyxl-3.1.5.dist-info/LICENCE.rst",
+        "path": "licenses/dependencies/openpyxl/3895b927-LICENCE.rst",
+        "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e"
+      }
+    ],
+    "urls": [
+      "Documentation, https://openpyxl.readthedocs.io/en/stable/",
+      "Source, https://foss.heptapod.net/openpyxl/openpyxl",
+      "Tracker, https://foss.heptapod.net/openpyxl/openpyxl/-/issues"
+    ],
+    "license": "MIT License"
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "files": [
+      {
+        "source": "packaging-26.3.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/packaging/11c854e2-LICENSE",
+        "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+      },
+      {
+        "source": "packaging-26.3.dist-info/licenses/LICENSE.APACHE",
+        "path": "licenses/dependencies/packaging/e9a5bac8-LICENSE.APACHE",
+        "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+      },
+      {
+        "source": "packaging-26.3.dist-info/licenses/LICENSE.BSD",
+        "path": "licenses/dependencies/packaging/ef96a084-LICENSE.BSD",
+        "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+      }
+    ],
+    "urls": [
+      "Documentation, https://packaging.pypa.io/",
+      "Source, https://github.com/pypa/packaging"
+    ],
+    "license": "Apache-2.0 OR BSD-2-Clause"
+  },
+  {
+    "name": "pandas",
+    "version": "3.1.0",
+    "files": [
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/pandas/0e40b579-LICENSE",
+        "sha256": "9850f6b5bdef7346503065807b878deb8058b976c5c329f4c4d23bf4796ce9ae"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/BOTTLENECK_LICENCE",
+        "path": "licenses/dependencies/pandas/bbc962d2-BOTTLENECK_LICENCE",
+        "sha256": "053a90e30580f5d9d79817add1567f88b4a3eeb11bcded9ecf74619d17768066"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/DATEUTIL_LICENSE",
+        "path": "licenses/dependencies/pandas/3340aa76-DATEUTIL_LICENSE",
+        "sha256": "ba00f51a0d92823b5a1cde27d8b5b9d2321e67ed8da9bc163eff96d5e17e577e"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/HAVEN_LICENSE",
+        "path": "licenses/dependencies/pandas/adeda676-HAVEN_LICENSE",
+        "sha256": "48216b40b3d1b19452923dd6fd74655bf5c0df9d76b51eb0efade7e0b88bfbcc"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/KLIB_LICENSE",
+        "path": "licenses/dependencies/pandas/d04fba6e-KLIB_LICENSE",
+        "sha256": "7463172c3a23321c1838896eba437f70a6de80ac5a840b2960966c8c5444abf1"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/MUSL_LICENSE",
+        "path": "licenses/dependencies/pandas/3ecde1c9-MUSL_LICENSE",
+        "sha256": "50a343c1ce9e27cd6c58023f13b91d2cd679861fe7fb6bbbbfbec3dcafc3583f"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/NUMPY_LICENSE",
+        "path": "licenses/dependencies/pandas/9fb625a8-NUMPY_LICENSE",
+        "sha256": "81d42da02a56b611c35abc83d2241564b46bec3a5b1960b395d55cebca68fb6f"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/PACKAGING_LICENSE",
+        "path": "licenses/dependencies/pandas/0160bd60-PACKAGING_LICENSE",
+        "sha256": "1871330068a18f1f07c3f147a41c008e59f367f217041ca6eb20b0298639a128"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/PSF_LICENSE",
+        "path": "licenses/dependencies/pandas/4d6088fd-PSF_LICENSE",
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/PYPERCLIP_LICENSE",
+        "path": "licenses/dependencies/pandas/dc24cce1-PYPERCLIP_LICENSE",
+        "sha256": "eafcd440e3570c6bc7b77dcec15dec398d13bc9b5e897336b221ff81ff19f345"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/PYUPGRADE_LICENSE",
+        "path": "licenses/dependencies/pandas/9f83af4e-PYUPGRADE_LICENSE",
+        "sha256": "70aedcd6928272bd176e4fdc3384af22ee759d006fb15105d994756e4f2d1b7a"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/SAS7BDAT_LICENSE",
+        "path": "licenses/dependencies/pandas/efc8fe03-SAS7BDAT_LICENSE",
+        "sha256": "458d5fd4175825440ad32d6bf6af45d1a19d4adb316b557d869c6560b6692e00"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/STATSBASE_JL_LICENSE",
+        "path": "licenses/dependencies/pandas/b2a57075-STATSBASE_JL_LICENSE",
+        "sha256": "f371ccf0fb892a4cd9f2e550c4b8cf4362793d17028dc642ad55c1e01a41dfe1"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/ULTRAJSON_LICENSE",
+        "path": "licenses/dependencies/pandas/6911e4a1-ULTRAJSON_LICENSE",
+        "sha256": "2bfbb5bb8ec66d136ec62d836ddc0c0019d44ef4d9389f1f6cab1c1109d774a2"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/LICENSES/XSIMD_LICENSE",
+        "path": "licenses/dependencies/pandas/f453a0dd-XSIMD_LICENSE",
+        "sha256": "501352acba62cc54e8e3d293754d606f919c9b425b962193c211f9fa29cd9940"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/subprojects/fast_float-8.2.10/LICENSE-APACHE",
+        "path": "licenses/dependencies/pandas/670a8cbe-LICENSE-APACHE",
+        "sha256": "097a889aa954d04e088b790b10a4014d6189561d0a6013935a73ce3d4ddaaf06"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/subprojects/fast_float-8.2.10/LICENSE-BOOST",
+        "path": "licenses/dependencies/pandas/70ab0ea5-LICENSE-BOOST",
+        "sha256": "8d8291caf1cee26d23acf3eb67c9f9a2d58f1c681b16a4fbe8cbfb9e3c0b5a9b"
+      },
+      {
+        "source": "pandas-3.1.0.dist-info/licenses/subprojects/fast_float-8.2.10/LICENSE-MIT",
+        "path": "licenses/dependencies/pandas/85308309-LICENSE-MIT",
+        "sha256": "e562f3f974ced7e69dd1db77b820b36bcf8f30377f1aa105723fba449c53c4e6"
+      }
+    ],
+    "urls": [
+      "homepage, https://pandas.pydata.org",
+      "source, https://github.com/pandas-dev/pandas",
+      "documentation, https://pandas.pydata.org/docs/",
+      "changelog, https://pandas.pydata.org/docs/whatsnew/index.html",
+      "issues, https://github.com/pandas-dev/pandas/issues",
+      "funding, https://opencollective.com/pandas"
+    ],
+    "license": "BSD-3-Clause"
+  },
+  {
+    "name": "pillow",
+    "version": "13.0.0",
+    "files": [
+      {
+        "source": "pillow-13.0.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/pillow/2bdf3a55-LICENSE",
+        "sha256": "988ffe8ab3480b0f4e9a0ab2702bffd73d9fb6b47198043fb3ba101a62fac236"
+      }
+    ],
+    "urls": [
+      "Release notes, https://pillow.readthedocs.io/en/stable/releasenotes/index.html",
+      "Changelog, https://github.com/python-pillow/Pillow/releases",
+      "Documentation, https://pillow.readthedocs.io",
+      "Funding, https://tidelift.com/lifter/search/pypi/pillow",
+      "Homepage, https://python-pillow.org",
+      "Mastodon, https://fosstodon.org/@pillow",
+      "Security, https://pillow.readthedocs.io/en/stable/handbook/security.html",
+      "Source, https://github.com/python-pillow/Pillow"
+    ],
+    "license": "MIT-CMU"
+  },
+  {
+    "name": "platformdirs",
+    "version": "4.14.2",
+    "files": [
+      {
+        "source": "platformdirs-4.14.2.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/platformdirs/1deb53c9-LICENSE",
+        "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6"
+      }
+    ],
+    "urls": [
+      "Changelog, https://platformdirs.readthedocs.io/en/latest/changelog.html",
+      "Documentation, https://platformdirs.readthedocs.io",
+      "Homepage, https://github.com/tox-dev/platformdirs",
+      "Source, https://github.com/tox-dev/platformdirs",
+      "Tracker, https://github.com/tox-dev/platformdirs/issues"
+    ],
+    "license": "MIT"
+  },
+  {
+    "name": "pycparser",
+    "version": "3.12",
+    "files": [
+      {
+        "source": "pycparser-3.12.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/pycparser/954ca904-LICENSE",
+        "sha256": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90"
+      }
+    ],
+    "urls": [
+      "Homepage, https://github.com/eliben/pycparser"
+    ],
+    "license": "BSD-3-Clause"
+  },
+  {
+    "name": "pyinstaller",
+    "version": "6.22.3",
+    "files": [
+      {
+        "source": "pyinstaller-6.22.3.dist-info/licenses/COPYING.txt",
+        "path": "licenses/dependencies/pyinstaller/dd9c870f-COPYING.txt",
+        "sha256": "0598064c7d2718e38d7914a7d08343b2fa008e3bea9ebba2aa7a6ffa5900dd64"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyinstaller.org",
+      "Documentation, https://pyinstaller.org",
+      "Source Code, https://github.com/pyinstaller/pyinstaller",
+      "Release Notes, https://pyinstaller.org/en/stable/CHANGES.html"
+    ],
+    "license": "GNU General Public License v2 (GPLv2)"
+  },
+  {
+    "name": "pyparsing",
+    "version": "3.3.3",
+    "files": [
+      {
+        "source": "pyparsing-3.3.3.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/pyparsing/7619cf72-LICENSE",
+        "sha256": "a5425f9dc14ac74d4c5f0b679e941f2442e32cca7452a4418d5b1a49893ebe4e"
+      }
+    ],
+    "urls": [
+      "Documentation, https://pyparsing-docs.readthedocs.io/en/latest/",
+      "Homepage, https://github.com/pyparsing/pyparsing/",
+      "Source, https://github.com/pyparsing/pyparsing.git"
+    ],
+    "license": "MIT"
+  },
+  {
+    "name": "PySide6",
+    "version": "6.12.0",
+    "files": [
+      {
+        "source": "pyside6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/pyside6/557d4ba6-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "PySide6_Addons",
+    "version": "6.12.0",
+    "files": [
+      {
+        "source": "pyside6_addons-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/pyside6-addons/985c4c1c-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "PySide6_Essentials",
+    "version": "6.12.0",
+    "files": [
+      {
+        "source": "pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/pyside6-essentials/7b09cb7d-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "PySide6_Pdf",
+    "version": "6.12.0.140",
+    "files": [
+      {
+        "source": "pyside6_pdf-6.12.0.140.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/pyside6-pdf/aa62e432-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "PySide6_WebEngine",
+    "version": "6.12.0.140",
+    "files": [
+      {
+        "source": "pyside6_webengine-6.12.0.140.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/pyside6-webengine/2ff52738-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "python-dateutil",
+    "version": "3.0.0",
+    "files": [
+      {
+        "source": "python_dateutil-3.0.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/python-dateutil/5004977d-LICENSE",
+        "sha256": "ba00f51a0d92823b5a1cde27d8b5b9d2321e67ed8da9bc163eff96d5e17e577e"
+      }
+    ],
+    "urls": [
+      "Documentation, https://dateutil.readthedocs.io/en/stable/",
+      "Source, https://github.com/dateutil/dateutil"
+    ],
+    "license": "BSD License; Apache Software License"
+  },
+  {
+    "name": "scipy",
+    "version": "1.18.1",
+    "files": [
+      {
+        "source": "scipy-1.18.1.dist-info/LICENSE.txt",
+        "path": "licenses/dependencies/scipy/d98f685f-LICENSE.txt",
+        "sha256": "f0f5c56b298ec9795df1199edc328a987242716d14a1bde6813112e22dc15f99"
+      },
+      {
+        "source": "scipy/_lib/_uarray/LICENSE",
+        "path": "licenses/dependencies/scipy/12543513-LICENSE",
+        "sha256": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811"
+      },
+      {
+        "source": "scipy/fft/_duccfft/LICENSE.md",
+        "path": "licenses/dependencies/scipy/4204666d-LICENSE.md",
+        "sha256": "c04661685cff9d8035fe1c4c3ab357e7f7633cafc06a73e9d90c3c5fede8a86a"
+      },
+      {
+        "source": "scipy/integrate/LICENSE_DOP",
+        "path": "licenses/dependencies/scipy/a443b9ad-LICENSE_DOP",
+        "sha256": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023"
+      },
+      {
+        "source": "scipy/spatial/qhull_src/COPYING_QHULL.txt",
+        "path": "licenses/dependencies/scipy/8989e278-COPYING_QHULL.txt",
+        "sha256": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32"
+      }
+    ],
+    "urls": [
+      "homepage, https://scipy.org/",
+      "documentation, https://docs.scipy.org/doc/scipy/",
+      "source, https://github.com/scipy/scipy",
+      "download, https://github.com/scipy/scipy/releases",
+      "tracker, https://github.com/scipy/scipy/issues"
+    ],
+    "license": "BSD License"
+  },
+  {
+    "name": "shiboken6",
+    "version": "6.12.0",
+    "files": [
+      {
+        "source": "shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt",
+        "path": "licenses/dependencies/shiboken6/3629c13b-LicenseRef-Qt-Commercial.txt",
+        "sha256": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+      }
+    ],
+    "urls": [
+      "Homepage, https://pyside.org",
+      "Documentation, https://doc.qt.io/qtforpython",
+      "Repository, https://code.qt.io/cgit/pyside/pyside-setup.git/",
+      "Changelog, https://code.qt.io/cgit/pyside/pyside-setup.git/tree/doc/changelogs",
+      "Tracker, https://qt-project.atlassian.net/browse/PYSIDE"
+    ],
+    "license": "LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+  },
+  {
+    "name": "six",
+    "version": "1.17.0",
+    "files": [
+      {
+        "source": "six-1.17.0.dist-info/LICENSE",
+        "path": "licenses/dependencies/six/3681ec3e-LICENSE",
+        "sha256": "4375ba20e2b9c6c4e7cad2940a628fd90e95cc3d50ee92aae755715d8ba1fbd0"
+      }
+    ],
+    "urls": [],
+    "license": "MIT License"
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "files": [
+      {
+        "source": "typing_extensions-4.16.0.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/typing-extensions/2231b6c4-LICENSE",
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+      }
+    ],
+    "urls": [
+      "Bug Tracker, https://github.com/python/typing_extensions/issues",
+      "Changes, https://github.com/python/typing_extensions/blob/main/CHANGELOG.md",
+      "Documentation, https://typing-extensions.readthedocs.io/",
+      "Home, https://github.com/python/typing_extensions",
+      "Q & A, https://github.com/python/typing/discussions",
+      "Repository, https://github.com/python/typing_extensions"
+    ],
+    "license": "PSF-2.0"
+  },
+  {
+    "name": "tzdata",
+    "version": "2026.6",
+    "files": [
+      {
+        "source": "tzdata-2026.6.dist-info/licenses/LICENSE",
+        "path": "licenses/dependencies/tzdata/275660fe-LICENSE",
+        "sha256": "df58f69ea88683035d720b5375bcef0cf5aeaa98a1d098d572e0992c378deb46"
+      },
+      {
+        "source": "tzdata-2026.6.dist-info/licenses/licenses/LICENSE_APACHE",
+        "path": "licenses/dependencies/tzdata/5412c5b4-LICENSE_APACHE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    ],
+    "urls": [
+      "Bug Reports, https://github.com/python/tzdata/issues",
+      "Source, https://github.com/python/tzdata",
+      "Documentation, https://tzdata.python.org"
+    ],
+    "license": "Apache-2.0"
+  },
+  {
+    "name": "wntr",
+    "version": "1.5.0",
+    "files": [
+      {
+        "source": "wntr-1.5.0.dist-info/licenses/LICENSE.md",
+        "path": "licenses/dependencies/wntr/eda76036-LICENSE.md",
+        "sha256": "926dffd7ad1325a9f381adab7d7a103a0e38211e09b4ca88a02ef8119d5205ae"
+      }
+    ],
+    "urls": [],
+    "license": "Revised BSD"
+  }
+]

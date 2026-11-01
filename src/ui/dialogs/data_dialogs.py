@@ -8,6 +8,8 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog
                                QListWidgetItem, QMessageBox, QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QPlainTextEdit)
 
+from .series_editors import CurvesDialog, PatternsDialog
+
 from ...hydraulics import editing
 from ...hydraulics.models import (Curve, Pattern, Control, CURVE_TYPES, CONTROL_CONDITIONS)
 
@@ -104,140 +106,6 @@ class _ListEditor(QDialog):
             return
         self.ctrl.apply(editing.update(self.ctrl.project, e.uid, **props), f'Editar {e.name}')
         self.reload(e.uid)
-
-
-class CurvesDialog(_ListEditor):
-    KIND = 'curve'
-    TITLE = 'Curvas (bomba, rendimento, volume, perda)'
-
-    def make(self, name):
-        return Curve(name=name, curve_type='PUMP', points=[[0, 50], [10, 45], [20, 30]])
-
-    def build_editor(self):
-        form = QFormLayout()
-        self.name = QLineEdit()
-        self.ctype = QComboBox()
-        self.ctype.addItems(CURVE_TYPES)
-        form.addRow('Identificador', self.name)
-        form.addRow('Tipo', self.ctype)
-        self.right.addLayout(form)
-        self.pts = QTableWidget(0, 2)
-        self.pts.verticalHeader().hide()
-        self.right.addWidget(self.pts, 1)
-        hb = QHBoxLayout()
-        for text, fn in (('+ ponto', self.add_point), ('− ponto', self.del_point),
-                         ('Importar CSV…', self.import_csv)):
-            b = QPushButton(text)
-            b.clicked.connect(fn)
-            hb.addWidget(b)
-        hb.addStretch()
-        self.right.addLayout(hb)
-        self.hint = QLabel('Bomba: 1 ponto (projeto), 3 pontos ou ≥ 4 pontos; X crescente.')
-        self.right.addWidget(self.hint)
-        self.ctype.currentTextChanged.connect(self._axes)
-
-    def _axes(self, t):
-        self.pts.setHorizontalHeaderLabels(list(CURVE_AXES.get(t, ('X', 'Y'))))
-
-    def load(self, e):
-        self.pts.setRowCount(0)
-        enabled = e is not None
-        for w in (self.name, self.ctype, self.pts):
-            w.setEnabled(enabled)
-        if not e:
-            self.name.setText('')
-            return
-        self.name.setText(e.name)
-        self.ctype.setCurrentText(e.curve_type)
-        self._axes(e.curve_type)
-        for x, y in e.points:
-            self.add_point(x, y)
-
-    def add_point(self, x=0.0, y=0.0):
-        r = self.pts.rowCount()
-        self.pts.insertRow(r)
-        self.pts.setItem(r, 0, QTableWidgetItem(f'{x:g}'))
-        self.pts.setItem(r, 1, QTableWidgetItem(f'{y:g}'))
-
-    def del_point(self):
-        for r in sorted({i.row() for i in self.pts.selectedIndexes()}, reverse=True):
-            self.pts.removeRow(r)
-
-    def import_csv(self):
-        path, _ = QFileDialog.getOpenFileName(self, 'Pontos da curva', '', 'CSV/TXT (*.csv *.txt)')
-        if not path:
-            return
-        pts = []
-        with open(path, encoding='utf-8-sig') as f:
-            for line in f:
-                bits = [b for b in line.replace(';', ' ').replace('\t', ' ').split() if b]
-                try:
-                    pts.append((float(bits[0].replace(',', '.')), float(bits[1].replace(',', '.'))))
-                except (ValueError, IndexError):
-                    continue
-        self.pts.setRowCount(0)
-        for x, y in pts:
-            self.add_point(x, y)
-
-    def collect(self):
-        pts = []
-        for r in range(self.pts.rowCount()):
-            try:
-                pts.append([float(self.pts.item(r, c).text().replace(',', '.')) for c in (0, 1)])
-            except (ValueError, AttributeError):
-                raise ValueError(f'Ponto {r + 1} inválido.')
-        name = self.name.text().strip()
-        if not name:
-            raise ValueError('Identificador vazio.')
-        return {'name': name, 'curve_type': self.ctype.currentText(), 'points': pts}
-
-
-class PatternsDialog(_ListEditor):
-    KIND = 'pattern'
-    TITLE = 'Padrões temporais (multiplicadores por passo de padrão)'
-
-    def make(self, name):
-        return Pattern(name=name, multipliers=[1.0] * 24)
-
-    def build_editor(self):
-        form = QFormLayout()
-        self.name = QLineEdit()
-        form.addRow('Identificador', self.name)
-        self.right.addLayout(form)
-        self.right.addWidget(QLabel('Multiplicadores (separados por espaço, ";" ou quebra de '
-                                    'linha):'))
-        self.text = QPlainTextEdit()
-        self.right.addWidget(self.text, 1)
-        self.info = QLabel('')
-        self.right.addWidget(self.info)
-
-    def load(self, e):
-        enabled = e is not None
-        self.name.setEnabled(enabled)
-        self.text.setEnabled(enabled)
-        if not e:
-            self.name.setText('')
-            self.text.setPlainText('')
-            return
-        self.name.setText(e.name)
-        self.text.setPlainText(' '.join(f'{m:g}' for m in e.multipliers))
-        step = self.ctrl.project.sim_options.pattern_step_h
-        self.info.setText(f'{len(e.multipliers)} valores × passo de {step:g} h = '
-                          f'{len(e.multipliers) * step:g} h; média '
-                          f'{sum(e.multipliers) / max(1, len(e.multipliers)):.3f}')
-
-    def collect(self):
-        raw = self.text.toPlainText().replace(';', ' ').split()
-        try:
-            mult = [float(t.replace(',', '.')) for t in raw]
-        except ValueError:
-            raise ValueError('Multiplicador inválido.')
-        if not mult:
-            raise ValueError('Informe ao menos um multiplicador.')
-        name = self.name.text().strip()
-        if not name:
-            raise ValueError('Identificador vazio.')
-        return {'name': name, 'multipliers': mult}
 
 
 class ControlsDialog(_ListEditor):

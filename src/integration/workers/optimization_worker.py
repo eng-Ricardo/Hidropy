@@ -159,9 +159,16 @@ def run(job):
             'ok_velocity': bool(det['v_max'][i] <= vmax_lim),
         }
     for t in fixos:
+        i = list(ns['TODOS_TUBOS']).index(t)
         d = wn_orig.get_link(t).diameter * 1000.0
         pipes[t] = {'fixed': True, 'length': float(wn_orig.get_link(t).length),
-                    'orig_diam_mm': d, 'opt_diam_mm': d}
+                    'orig_diam_mm': d, 'opt_diam_mm': d,
+                    'v_max': _clean(det['v_max_all'][i]),
+                    'j_max': _clean(det['j_max_all'][i]),
+                    'q_max': _clean(det['q_max_all'][i] * 1000.0),
+                    'v_max_orig': _clean(ref['v_max_all'][i]) if ref else None,
+                    'j_max_orig': _clean(ref['j_max_all'][i]) if ref else None,
+                    'ok_velocity': bool(det['v_max_all'][i] <= vmax_lim)}
 
     alvo = list(ns['ALVO_PRESSAO'])
     teto = list(ns['TETO_PRESSAO'])
@@ -185,7 +192,8 @@ def run(job):
         'n_v_alta': det['n_v_alta'], 'n_j_alta': det['n_j_alta'],
         'hora_critica': det['hora_critica'] if ns.get('PERIODO_ESTENDIDO') else None,
         'p_min': _clean(min(det['p_min'])), 'p_max': _clean(max(det['p_max'])),
-        'v_max': _clean(max(det['v_max'])),
+        'v_max': _clean(max(det['v_max_all'])),
+        'n_v_alta_fixos': sum(not pipes[t]['ok_velocity'] for t in fixos),
         'faixa_dn': DN_MM, 'custo_ref': ns.get('CUSTO_REF'),
         'comprimento_total': ns.get('COMPRIMENTO_TOTAL'),
         'avaliacoes_unicas': len(ns.get('_cache', {})),
@@ -193,8 +201,14 @@ def run(job):
         'periodo_estendido': bool(ns.get('PERIODO_ESTENDIDO')),
     }
     hash_after = _sha256(script)
+    from src.integration.epanet import execution_metadata
+    execution = execution_metadata(wn_orig)
+    execution['optimization_settings'] = consts
+    execution['selection_policy'] = 'violation_then_cost'
+    execution['pressure_policy'] = 'strict_minimum_and_absolute_floor'
     return {'status': 'ok', 'engine': os.path.basename(script), 'script_sha256': hash_before,
             'script_unchanged': hash_before == hash_after,
+            'execution': execution,
             'pipes': pipes, 'junctions': junctions, 'summary': summary,
             'optimized_inp': out_inp}
 

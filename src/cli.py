@@ -1,7 +1,7 @@
-"""Interface de linha de comando do HidroPy (uso por scripts e agentes, ex.: Claude Code).
+"""Interface de linha de comando do AVANT HIDRO (uso por scripts e agentes, ex.: Claude Code).
 
     python main.py cli <comando> <arquivo> [opções] [--json]
-    HidroPy.exe cli <comando> <arquivo> [opções] [--json]
+    AvantHidro.exe cli <comando> <arquivo> [opções] [--json]
 
 Com --json o stdout recebe UM objeto JSON (esquema no README, seção "Linha de comando");
 mensagens de progresso e avisos vão sempre para o stderr. Códigos de saída: 0 sucesso,
@@ -107,7 +107,7 @@ def load_input(path: str, fix_inp: bool = False) -> Ctx:
         warns_pre += [f'Corrigido (linha {i.line}): {i.message}' for i in chk.issues]
         p = Project()
         try:
-            net, warns = import_inp(prepare(chk, apply_fixes=fix_inp), p)
+            net, warns = import_inp(prepare(chk, apply_fixes=fix_inp), p, source_path=path)
         except Exception as e:
             raise CliError(f'Falha ao ler o .inp: {e}') from e
         warns = warns_pre + list(warns)
@@ -923,7 +923,7 @@ def cmd_relatorio(ctx: Ctx, a) -> tuple[dict, int]:
     if path.lower().endswith('.pdf'):
         os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
         from PySide6.QtGui import QGuiApplication
-        _app = QGuiApplication.instance() or QGuiApplication(['hidropy-cli'])  # noqa: F841
+        _app = QGuiApplication.instance() or QGuiApplication(['avant-hidro-cli'])  # noqa: F841
         reports.save_pdf(html, path)
     else:
         reports.save_html(html, path)
@@ -991,7 +991,7 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument('--ignorar-validacao', action='store_true',
                         help='calcula mesmo com erros de validação')
 
-    ap = _Parser(prog='hidropy cli', description='HidroPy — linha de comando (uso agêntico).')
+    ap = _Parser(prog='avant-hidro cli', description='AVANT HIDRO — linha de comando (uso agêntico).')
     sub = ap.add_subparsers(dest='comando', metavar='comando', parser_class=_Parser)
     sp = {}
     for name, (_fn, helptext) in COMMANDS.items():

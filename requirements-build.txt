@@ -1,0 +1,2 @@
+# Ferramentas de empacotamento; dependências de execução ficam em requirements.txt.
+PyInstaller>=6.11,<7

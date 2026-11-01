@@ -55,6 +55,7 @@ def fill_table(table: QTableWidget, df):
 
 class ResultsPanel(QWidget):
     themeChanged = Signal()
+    graphsRequested = Signal()
 
     def __init__(self, controller, canvas, parent=None):
         super().__init__(parent)
@@ -113,7 +114,7 @@ class ResultsPanel(QWidget):
         self.tabs.addTab(self.links_tab, 'Trechos')
         self.plot_host = QWidget()
         self._plot_ready = False
-        self.tabs.addTab(self.plot_host, 'Gráfico temporal')
+        self.tabs.addTab(self.plot_host, 'Gráficos')
         self.summary = QPlainTextEdit()
         self.summary.setReadOnly(True)
         self.tabs.addTab(self.summary, 'Resumo / restrições')
@@ -293,6 +294,10 @@ class ResultsPanel(QWidget):
             self._plot_ready = None
             return False
         lay = QVBoxLayout(self.plot_host)
+        self.graphs_button = QPushButton('Configurar gráficos…')
+        self.graphs_button.setToolTip('Série temporal, perfil, contorno, frequência e vazão do sistema')
+        self.graphs_button.clicked.connect(self.graphsRequested.emit)
+        lay.addWidget(self.graphs_button)
         h = QHBoxLayout()
         h.addWidget(QLabel('Variável:'))
         self.plot_var = QComboBox()

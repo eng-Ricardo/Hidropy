@@ -3,12 +3,12 @@
 <meta charset="utf-8">
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; }
-  h1 { color: #0ABDDB; font-size: 22pt; margin-bottom: 0; }
-  h2 { color: #0ABDDB; font-size: 14pt; margin-top: 22px; }
+  h1 { color: #0068B4; font-size: 22pt; margin-bottom: 0; }
+  h2 { color: #0068B4; font-size: 14pt; margin-top: 22px; }
   h3 { font-size: 11pt; margin-top: 14px; }
   table { border-collapse: collapse; margin-top: 6px; margin-bottom: 6px; }
   td, th { border: 1px solid #8a8a8a; padding: 3px 7px; }
-  th { background-color: #0ABDDB; color: #ffffff; }
+  th { background-color: #0068B4; color: #ffffff; }
   .sub { font-size: 11pt; }
   .nota { font-style: italic; }
   code { font-family: Consolas, monospace; }
@@ -16,9 +16,10 @@
 </head>
 <body>
 
-<h1>HidroPy</h1>
-<p class="sub">Simulador hidráulico baseado em Python — manual do usuário</p>
-<p>Desenvolvido por <b>Caio Henrique de Oliveira Nascimento</b>, estudante de Engenharia
+<p align="center"><img src="avant_hidro_logo.png" width="580"></p>
+<h1>AVANT HIDRO 1.2.0</h1>
+<p class="sub">Modelagem e projeto de redes hidráulicas — manual do usuário</p>
+<p>Identidade e evolução: AVANT HIDRO. Código sob licença MIT.<br>Baseado no HidroPy, criado por <b>Caio Henrique de Oliveira Nascimento</b>, estudante de Engenharia
 Ambiental e Sanitária do IFCE — campus Maracanaú.<br>
 LinkedIn: <a href="https://www.linkedin.com/in/caio-henrique-6a6650236">www.linkedin.com/in/caio-henrique-6a6650236</a></p>
 
@@ -43,7 +44,7 @@ LinkedIn: <a href="https://www.linkedin.com/in/caio-henrique-6a6650236">www.link
 
 <a name="apresentacao"></a>
 <h2>1. Apresentação</h2>
-<p>O HidroPy reúne, num só programa, o desenho e a análise de redes de distribuição de água:</p>
+<p>O AVANT HIDRO reúne, num só programa, o desenho e a análise de redes de distribuição de água:</p>
 <ul>
   <li>desenho da rede sobre uma base topográfica em DXF, com coordenadas reais;</li>
   <li>cadastro de junções, reservatórios, tanques, tubulações, bombas e válvulas;</li>
@@ -165,8 +166,75 @@ desfazer a marcação, use <b>Marcar como projetados</b> (Ctrl+Shift+P).</p>
       alterado.</li>
 </ul>
 
+<h3>Renumerar nós e trechos</h3>
+<p>Em <b>Rede hidráulica → Renumerar nós e trechos</b>, ao lado de <b>Dividir tubulação</b>,
+defina prefixos, quantidade mínima de dígitos e número inicial. O mesmo comando está na
+barra de ferramentas Rede. A função atua nas junções e tubulações do cenário ativo;
+reservatórios, tanques, bombas e válvulas mantêm seus nomes.</p>
+<ul>
+  <li><b>Oeste → Leste:</b> ordena junções por X crescente.</li>
+  <li><b>Norte → Sul:</b> ordena junções por Y decrescente.</li>
+  <li><b>Ordem original:</b> mantém a ordem de cadastro de junções e tubulações.</li>
+  <li><b>Topológico hidráulico:</b> requer uma simulação da rede atual. Escolha o instante;
+      a sequência das junções parte de reservatórios e tanques e segue os sentidos de
+      vazão. Os tubos são ordenados pela vazão absoluta, da maior para a menor. Junções
+      não alcançadas são listadas ao final e identificadas na prévia.</li>
+</ul>
+<p>Nos métodos geométricos, os tubos continuam na ordem original, conforme o protocolo da
+suíte. Empates preservam a ordem de cadastro. Confira a tabela <b>ID atual → Novo ID</b>
+antes de aplicar. Prefixos inválidos e identificadores duplicados impedem a aplicação.
+A correspondência pode ser exportada em CSV. Conexões, controles, propriedades e comentários
+são preservados; a mudança pode ser desfeita ou refeita em uma única operação.
+Execute nova simulação para atualizar os resultados após a renumeração.</p>
+
+<h3>Importação QGIS / QEPANET</h3>
+<p>Arquivos QEPANET podem conter seções auxiliares depois de [END]. A importação
+as reconhece e usa uma cópia compatível, preservando materiais, delta Z e cotas
+dos vértices. O original permanece intacto. Selecione um elemento para consultar
+<b>Dados de origem — QGIS / EPANET</b>; nos trechos, <b>Ver cotas dos vértices</b>
+abre a tabela para consulta, cópia ou exportação CSV. O projeto guarda também
+um histórico com o arquivo, hash e avisos. A exportação INP transporta esses
+dados auxiliares em comentários compatíveis.</p>
+<p>Potência zero e tanques sem dimensões são importados para edição e apontados
+na validação. Antes de simular, informe os dados hidráulicos necessários.</p>
+<h3>Curvas e padrões: tabela e gráfico</h3>
+<p>Abra <b>Rede hidráulica → Curvas</b> ou <b>Padrões temporais</b>. A lista permite
+criar, duplicar e excluir objetos. À direita ficam identificador, descrição,
+tabela e gráfico. Trocar de item mantém os dados ainda não aplicados. <b>Aplicar</b> grava
+todas as alterações em uma operação de desfazer; <b>OK</b> aplica e fecha;
+<b>Cancelar</b> descarta apenas o que ainda não foi aplicado.</p>
+<p>Curvas de bomba com um ponto, ou três começando em vazão zero, mostram o ajuste
+e a equação. Os demais casos usam segmentos lineares, conforme o motor EPANET.
+O expoente do ajuste deve satisfazer 0 &lt; C ≤ 20. Confira as unidades
+nos cabeçalhos. No padrão, cada coluna é um período: o gráfico mostra os fatores,
+a média e o ciclo completo. Passo e início são globais, nas opções de simulação.
+<b>Média = 1</b> normaliza os fatores somente quando acionado.</p>
+<p><b>Carregar/Salvar arquivo</b> usa PAT/CRV do EPANET ou CSV. Ctrl+C/Ctrl+V
+transfere os dados da tabela. A vírgula decimal é aceita; linhas inválidas são
+indicadas e não são descartadas silenciosamente. O botão <b>Ajuda</b> explica
+as regras e os formatos.</p>
 <a name="edicao"></a>
 <h2>5. Propriedades e tabela de elementos</h2>
+<h3>Trocar elemento pelo botão direito</h3>
+<p>Na ferramenta <b>Selecionar</b>, clique com o botão direito sobre o elemento e escolha
+<b>Trocar elemento</b>. Nós podem mudar entre <b>Junção, Reservatório e Tanque</b>;
+ligações, entre <b>Tubulação, Bomba e Válvula</b>. Em válvulas, também é possível mudar
+o subtipo PRV, PSV, PBV, FCV, TCV ou GPV. Para várias trocas, selecione apenas nós ou apenas
+ligações e clique com o botão direito em um dos selecionados. Elementos já do tipo escolhido
+são mantidos, exceto a edição de subtipo e dados de válvulas.</p>
+<p>Confira os dados do novo tipo e a lista de propriedades exclusivas que serão removidas.
+Nome, UID, coordenadas, extremidades e vértices permanecem iguais. A camada padrão acompanha
+o novo tipo; camadas personalizadas são preservadas. Em lote, campos com a indicação
+<b>Manter valores individuais</b> conservam os dados compatíveis de cada elemento.
+Carga hidráulica não é usada como cota de terreno. Potência/curva de bomba, dimensões
+de tanque e rugosidade devem ser informadas quando não existem no elemento anterior.</p>
+<p>Ao mudar o subtipo de válvula, informe novamente o ajuste e confira sua unidade:
+pressão em metros para PRV/PSV/PBV, vazão em L/s para FCV, coeficiente K para TCV ou curva
+de perda para GPV. Controles de estado aberto/fechado são preservados quando compatíveis;
+condições por pressão/nível e ajustes numéricos incompatíveis são listados e impedem a
+aplicação até a remoção explícita. As restrições de conexão de válvulas do EPANET são verificadas.
+Toda a troca, inclusive a remoção de controles, pode ser desfeita e refeita em uma única
+operação. Execute nova simulação após a alteração.</p>
 <p>O painel <b>Propriedades</b> mostra os dados do elemento selecionado. Com vários elementos do
 mesmo tipo selecionados, a alteração vale para todos (edição em lote).</p>
 <p>Nas tubulações, o <b>comprimento automático</b> acompanha o desenho; desligado, permite
@@ -216,6 +284,12 @@ tubulação sem estar conectados a ela. Duplo clique numa linha localiza o eleme
 <p>Em <b>Simulação → Opções</b> defina a duração (0 para regime permanente), os passos de tempo,
 a fórmula de perda de carga (Hazen-Williams, Darcy-Weisbach ou Chezy-Manning), o multiplicador
 de demanda e os limites de pressão e velocidade usados nas verificações.</p>
+<p>O modelo de demanda pode ser fixo (<b>DDA</b>) ou dependente de pressão (<b>PDA</b>).
+No PDA, informe a pressão de demanda nula, a pressão necessária para demanda integral e o
+expoente. Esses parâmetros são diferentes dos limites usados para verificar o atendimento.
+Os deslocamentos dos padrões e o início do relatório também são preservados na importação.</p>
+<p>Resultados sem convergência ou incompletos são classificados como falha; consulte o
+relatório do EPANET antes de revisar os parâmetros.</p>
 <p>A simulação roda em segundo plano e pode ser cancelada. Ao terminar, o painel
 <b>Resultados</b> oferece:</p>
 <ul>
@@ -228,6 +302,33 @@ de demanda e os limites de pressão e velocidade usados nas verificações.</p>
 </ul>
 <p>No menu <b>Visualizar</b> é possível exibir nomes, diâmetros, pressões, vazões, velocidades e
 setas de sentido de escoamento. Os tanques mostram o nível no próprio símbolo.</p>
+
+<h3>Gráficos de resultados</h3>
+<p>Abra <b>Resultados → Gráficos</b> (<b>Ctrl+G</b>) ou use o botão de gráfico ao lado do
+botão de Resultados na barra superior. A aba <b>Gráficos</b> do painel também contém
+<b>Configurar gráficos</b>, além da consulta temporal rápida do elemento selecionado.</p>
+<ul>
+  <li><b>Série temporal:</b> compare vários nós ou trechos ao longo do período. Em regime
+      permanente existe apenas um ponto por elemento.</li>
+  <li><b>Perfil da rede:</b> adicione pelo menos dois nós e use Subir/Descer para ordenar.
+      O percurso inclui os nós intermediários e usa o menor caminho por comprimento
+      cadastrado entre os pontos escolhidos. A carga hidráulica também pode ser comparada
+      com as cotas do terreno ou do fundo dos tanques.</li>
+  <li><b>Contorno:</b> apresenta uma interpolação linear dos valores nodais no instante
+      escolhido. São necessárias pelo menos três posições distintas e não alinhadas.
+      As faixas entre nós são uma representação gráfica, não novos valores calculados.</li>
+  <li><b>Frequência acumulada:</b> mostra a porcentagem de todos os nós ou trechos com valor
+      menor ou igual ao indicado. Reservatórios e tanques não entram na distribuição de
+      pressão de atendimento.</li>
+  <li><b>Vazão do sistema:</b> compara fornecimento dos reservatórios, demanda nas junções
+      e armazenamento nos tanques. O armazenamento positivo representa enchimento e o
+      negativo representa esvaziamento.</li>
+</ul>
+<p>Escolha o parâmetro e, quando aplicável, o instante. Use <b>Adicionar seleção do desenho</b>
+para aproveitar os elementos selecionados no CAD. A barra sobre o gráfico permite zoom,
+deslocamento e retorno à vista inicial. Exporte a imagem em PNG, SVG ou PDF, ou os valores
+representados em CSV. Caso a rede tenha sido alterada após o cálculo, execute uma nova
+simulação antes de gerar o gráfico.</p>
 
 <a name="otimizacao"></a>
 <h2>9. Otimização de diâmetros (F6)</h2>
@@ -244,12 +345,17 @@ a cada avaliação. Em <b>Otimização → Configurar</b> é possível ajustar:<
 <p>Ao final, a janela de resultado mostra o custo, se a solução é viável e uma comparação trecho a
 trecho (diâmetro original × otimizado, custo, velocidade e perda de carga) e nó a nó (pressões
 antes e depois). Você escolhe entre:</p>
+<p>A pressão exigida é o maior valor entre a mínima configurada e o piso obrigatório,
+com a tolerância numérica informada. A topografia não reduz esse limite automaticamente.
+O algoritmo prioriza soluções viáveis. Quando nenhuma delas é encontrada, o resultado
+inviável é apresentado como diagnóstico da menor violação encontrada.</p>
 <ul>
   <li><b>Visualizar no desenho</b>, sem modificar a rede (mapa de alteração de diâmetros);</li>
   <li><b>Aplicar os diâmetros</b> ao projeto atual (pode ser desfeito);</li>
   <li><b>Criar um cenário otimizado</b>, mantendo a rede original intacta.</li>
 </ul>
-<p>Trechos marcados como existentes nunca têm o diâmetro alterado. Depois de aplicar os
+<p>Trechos marcados como existentes nunca têm o diâmetro alterado e ficam fora do custo
+de implantação, mas continuam sujeitos às verificações hidráulicas. Depois de aplicar os
 diâmetros, execute uma nova simulação para obter os resultados da rede modificada.</p>
 
 <a name="cenarios"></a>
@@ -300,11 +406,11 @@ as demais extremidades são bolsas.</p>
 <h2>13. Linha de comando</h2>
 <p>As operações principais também podem ser executadas sem abrir a janela, o que permite
 automatizá-las:</p>
-<p><code>HidroPy.exe cli &lt;comando&gt; projeto.shcad [opções] [--json]</code></p>
+<p><code>AvantHidro.exe cli &lt;comando&gt; projeto.shcad [opções] [--json]</code></p>
 <p>Comandos: <code>info</code>, <code>validar</code>, <code>simular</code>, <code>otimizar</code>,
 <code>comparar</code>, <code>aplicar-otimizacao</code>, <code>ativar-cenario</code>,
 <code>exportar-dxf</code>, <code>planilha</code>, <code>relatorio</code> e <code>importar</code>.
-Use <code>HidroPy.exe cli &lt;comando&gt; --help</code> para ver as opções de cada um. Com
+Use <code>AvantHidro.exe cli &lt;comando&gt; --help</code> para ver as opções de cada um. Com
 <code>--json</code>, o resultado é um resumo em JSON.</p>
 
 <a name="atalhos"></a>
@@ -338,13 +444,17 @@ Use <code>HidroPy.exe cli &lt;comando&gt; --help</code> para ver as opções de 
       população e configurações. A cada gravação, a versão anterior é guardada como
       <code>.shcad.bak</code>.</li>
   <li>O programa avisa sobre alterações não salvas ao fechar ou abrir outro projeto.</li>
-  <li>Os registros de execução ficam em <code>%LOCALAPPDATA%\HidroPy\logs</code>
+  <li>Os registros de execução ficam em <code>%LOCALAPPDATA%\AvantHidro\logs</code>
       (Ferramentas → Abrir arquivo de log).</li>
 </ul>
 
+<h3>Licença e créditos</h3>
+<p>O código da aplicação permanece sob MIT, preservando Copyright (c) 2026 caioews.
+Atribuições originais e licenças das bibliotecas estão em
+<b>Ajuda → Sobre o AVANT HIDRO → Licenças e atribuições</b>.</p>
 <hr>
-<p><b>HidroPy</b> — simulador hidráulico baseado em Python.<br>
-Criado por Caio Henrique de Oliveira Nascimento, estudante de Engenharia Ambiental e Sanitária
+<p><b>AVANT HIDRO</b> — simulador hidráulico baseado em Python.<br>
+Baseado no HidroPy, criado por Caio Henrique de Oliveira Nascimento, estudante de Engenharia Ambiental e Sanitária
 do IFCE — campus Maracanaú.<br>
 <a href="https://www.linkedin.com/in/caio-henrique-6a6650236">www.linkedin.com/in/caio-henrique-6a6650236</a></p>
 

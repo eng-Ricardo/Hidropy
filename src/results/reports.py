@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import html
+import base64
+
+from ..branding import APP_NAME, LOGO_PATH
 
 import pandas as pd
 
@@ -48,8 +51,10 @@ def _stale_note(ctrl, res):
 
 def build_report(ctrl, which: set[str], time_index: int = 0) -> str:
     p = ctrl.project
+    logo = (f'<div style="background:#000"><img width="320" src="data:image/png;base64,{base64.b64encode(LOGO_PATH.read_bytes()).decode()}"></div>'
+            if LOGO_PATH.is_file() else '')
     parts = [f'<html><head><meta charset="utf-8"><style>{CSS}</style></head><body>',
-             _header(p, 'Relatório — HidroPy')]
+             logo, _header(p, f'Relatório — {APP_NAME}')]
     sim = p.latest_result('simulation')
     opt = p.latest_result('optimization')
     if 'cadastro' in which:

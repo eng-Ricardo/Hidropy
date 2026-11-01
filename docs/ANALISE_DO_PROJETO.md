@@ -2,6 +2,10 @@
 
 Data da análise: 2026-10-15
 
+> Registro histórico da integração inicial. As correções posteriores de pressão,
+> seleção de soluções, convergência e suporte a PDA estão descritas em
+> [CORRECOES_CONFIABILIDADE.md](CORRECOES_CONFIABILIDADE.md).
+
 ## 1. Conteúdo encontrado
 
 | Item | Situação |
@@ -125,5 +129,5 @@ mesmo interpretador da interface. Dependências: ver `requirements.txt`.
 | Regras (`[RULES]`, condições de estado) | **Pendente** — não exportadas. |
 | Otimização de bombas/válvulas | **Não suportada** pelo `main4.py`. |
 | Custo por trecho na otimização | **Não suportado** — o script usa custo do catálogo. O campo "custo unitário" do tubo é informativo. |
-| Simulação dirigida por pressão (PDD) | **Não integrada** (o script usa DD). |
+| Simulação dirigida por pressão (PDA/PDD) | Integrada; opções preservadas e configuráveis. Ver as correções posteriores. |
 | Qualidade da água | **Não integrada**. |

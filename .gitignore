@@ -12,6 +12,7 @@ dist/
 # Arquivos temporários do programa
 *.bak
 *.lock
+!requirements-windows-py312.lock
 *.tmp
 
 # Configuração local do Claude Code
